@@ -1,7 +1,6 @@
 // ignore_for_file: depend_on_referenced_packages
 
 import 'dart:developer';
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -24,22 +23,21 @@ class AuthProvider extends ChangeNotifier {
       String email, String password, BuildContext context) async {
     setIsLoading(true);
 
-    api
-        .loginUser(email, password)
-        .then((value) => {
-              if (value != null)
-                {
-                  setUser(value),
-                  setIsLoading(false),
-                  setIsLogged(true),
-                  Navigator.of(context).pushNamedAndRemoveUntil(
-                      IncidentPage.routeName, (route) => false)
-                }
-              else
-                {throw Exception("Failed to login")}
-            })
-        .catchError((onError) {
-      setErrorMessage(onError.toString());
+    try {
+      User? list = await api.loginUser(email, password);
+      log(list.toString());
+
+      if (list != null) {
+        setUser(list);
+        setIsLogged(true);
+        // ignore: use_build_context_synchronously
+        Navigator.of(context)
+            .pushNamedAndRemoveUntil(IncidentPage.routeName, (route) => false);
+      }
+
+      setIsLoading(false);
+    } catch (e) {
+      setErrorMessage(e.toString());
       // log("AuthProvider Error message is $onError");
       setIsLogged(false);
       setIsLoading(false);
@@ -52,9 +50,7 @@ class AuthProvider extends ChangeNotifier {
         textColor: Colors.white,
         fontSize: 16.0,
       );
-      // ignore: invalid_return_type_for_catch_error
-      return Future.value('');
-    });
+    }
   }
 
   Future<String?> getTokenPref() async {
