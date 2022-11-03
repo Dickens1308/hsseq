@@ -2,11 +2,10 @@
 
 import 'dart:convert';
 import 'dart:developer';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:hsseq/model/User.dart';
+import 'package:hsseq/model/user.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -46,8 +45,7 @@ class AuthApi {
         );
         throw Exception(msg);
       }
-    }  catch (e) {
-
+    } catch (e) {
       // Fluttertoast.showToast(
       //   msg: e.toString(),
       //   toastLength: Toast.LENGTH_LONG,

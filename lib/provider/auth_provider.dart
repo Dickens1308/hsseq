@@ -7,7 +7,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hsseq/api/auth_api.dart';
-import 'package:hsseq/model/User.dart';
+import 'package:hsseq/model/user.dart';
 import 'package:hsseq/screen/incident_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

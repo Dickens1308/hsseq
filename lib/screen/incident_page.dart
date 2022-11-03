@@ -1,10 +1,10 @@
+// ignore_for_file: depend_on_referenced_packages
+
 import 'package:flutter/material.dart';
 import 'package:hsseq/model/incident.dart';
 import 'package:hsseq/provider/incident_provider.dart';
 import 'package:hsseq/screen/login_screen.dart';
 import 'package:provider/provider.dart';
-
-// ignore: depend_on_referenced_packages
 import 'package:shared_preferences/shared_preferences.dart';
 
 class IncidentPage extends StatefulWidget {
