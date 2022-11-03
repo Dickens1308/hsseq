@@ -1,11 +1,13 @@
+// ignore_for_file: depend_on_referenced_packages
+
 import 'dart:developer';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hsseq/api/auth_api.dart';
 import 'package:hsseq/model/User.dart';
 import 'package:hsseq/screen/incident_page.dart';
-// ignore: depend_on_referenced_packages
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthProvider extends ChangeNotifier {
@@ -34,25 +36,25 @@ class AuthProvider extends ChangeNotifier {
                       IncidentPage.routeName, (route) => false)
                 }
               else
-                {throw Exception("Failed to logged in user")}
+                {throw Exception("Failed to login")}
             })
-        // ignore: invalid_return_type_for_catch_error
-        .catchError((error) => {
-              setErrorMessage(error.toString().replaceAll("Exception:","")),
-              setIsLogged(false),
-              setIsLoading(false),
-              Fluttertoast.showToast(
-                msg: errorMessage,
-                toastLength: Toast.LENGTH_LONG,
-                gravity: ToastGravity.CENTER,
-                timeInSecForIosWeb: 1,
-                backgroundColor: Colors.red,
-                textColor: Colors.white,
-                fontSize: 16.0,
-              ),
-              log("AuthProvider Error message is $error"),
-              // Future.error(Exception("Exception"))
-            });
+        .catchError((onError) {
+      setErrorMessage(onError.toString());
+      // log("AuthProvider Error message is $onError");
+      setIsLogged(false);
+      setIsLoading(false);
+      Fluttertoast.showToast(
+        msg: errorMessage,
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0,
+      );
+      // ignore: invalid_return_type_for_catch_error
+      return Future.value('');
+    });
   }
 
   Future<String?> getTokenPref() async {
