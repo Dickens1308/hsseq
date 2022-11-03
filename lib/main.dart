@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hsseq/provider/auth_provider.dart';
 import 'package:hsseq/provider/incident_provider.dart';
+// ignore: depend_on_referenced_packages
 import 'package:provider/provider.dart';
 import 'app.dart';
 

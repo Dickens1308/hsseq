@@ -1,7 +1,9 @@
 // ignore_for_file: depend_on_referenced_packages
 
 import 'dart:developer';
+import 'dart:io';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hsseq/api/auth_api.dart';
@@ -24,7 +26,20 @@ class AuthProvider extends ChangeNotifier {
     setIsLoading(true);
 
     try {
-      User? list = await api.loginUser(email, password);
+      bool isConnected = await checkConnection();
+      if (!isConnected) {
+        Fluttertoast.showToast(
+          msg: "Check you internet connection!",
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0,
+        );
+      }
+      log(isConnected.toString());
+      User? list = isConnected ? await api.loginUser(email, password) : null;
       log(list.toString());
 
       if (list != null) {
@@ -86,5 +101,25 @@ class AuthProvider extends ChangeNotifier {
   void setErrorMessage(String msg) {
     _errorMessage = msg;
     notifyListeners();
+  }
+
+  //Check if mobile phone has internet or not
+  checkConnection() async {
+    var connectivityResult = await (Connectivity().checkConnectivity());
+
+    if (connectivityResult == ConnectivityResult.mobile ||
+        connectivityResult == ConnectivityResult.wifi) {
+      try {
+        final result = await InternetAddress.lookup('pft.springtech.co.tz');
+        if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+          return true;
+        }
+      } on SocketException catch (_) {
+        Fluttertoast.showToast(msg: "This is socket toast");
+        return false;
+      }
+    } else {
+      return false;
+    }
   }
 }
