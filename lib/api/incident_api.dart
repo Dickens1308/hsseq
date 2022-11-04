@@ -17,7 +17,7 @@ class IncidentApi {
       String? location, String desc, String? action) async {
     Uri url = Uri.parse("https://pft.springtech.co.tz/api/v1/incidents/create");
     http.StreamedResponse result;
-    String? msg;
+    // String? msg;
 
     try {
       String? token = await getTokenPref();
@@ -28,7 +28,7 @@ class IncidentApi {
 
       request.fields['risk_level'] = risk!;
       request.fields['location'] = location!;
-      request.fields['description'] = desc!;
+      request.fields['description'] = desc;
       request.fields['immediate_action_taken'] = action!;
 
       List<http.MultipartFile> list = <http.MultipartFile>[];

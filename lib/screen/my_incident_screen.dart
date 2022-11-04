@@ -178,7 +178,6 @@ class _MyIncidentScreenState extends State<MyIncidentScreen> {
                             ),
                           ),
                         );
-                        ;
                       });
         },
       ),

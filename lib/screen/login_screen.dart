@@ -1,4 +1,4 @@
-// ignore_for_file: depend_on_referenced_packages
+// ignore_for_file: depend_on_referenced_packages, library_private_types_in_public_api
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +14,8 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _emailController = TextEditingController(text: "amsangi@springtech.co.tz");
+  final _emailController =
+      TextEditingController(text: "amsangi@springtech.co.tz");
   final _passwordController = TextEditingController(text: "admin");
 
   GlobalKey<FormState> globalKey = GlobalKey<FormState>();
@@ -25,76 +26,76 @@ class _LoginScreenState extends State<LoginScreen> {
     return Consumer<AuthProvider>(builder: (context, notifier, child) {
       return notifier.isLoading
           ? const Scaffold(
-        body: Center(
-          child: CupertinoActivityIndicator(
-            radius: 15,
-          ),
-        ),
-      )
+              body: Center(
+                child: CupertinoActivityIndicator(
+                  radius: 15,
+                ),
+              ),
+            )
           : Scaffold(
-        appBar: AppBar(
-          iconTheme: const IconThemeData(color: Colors.black),
-          backgroundColor: Colors.white,
-          elevation: 0,
-        ),
-        backgroundColor: Colors.white,
-        body: SingleChildScrollView(
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(bottom: 30),
+              appBar: AppBar(
+                iconTheme: const IconThemeData(color: Colors.black),
+                backgroundColor: Colors.white,
+                elevation: 0,
+              ),
+              backgroundColor: Colors.white,
+              body: SingleChildScrollView(
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Padding(
-                      padding: const EdgeInsets.all(6.0),
-                      child: Container(
-                        height: MediaQuery.of(context).size.height * .2,
-                        // decoration: BoxDecoration(
-                        //   borderRadius: BorderRadius.circular(25),
-                        //   image: const DecorationImage(
-                        //     fit: BoxFit.cover,
-                        //     image: AssetImage(
-                        //       'assets/images/logo.png',
-                        //     ),
-                        //   ),
-                        // ),
+                      padding: const EdgeInsets.only(bottom: 30),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(6.0),
+                            child: Container(
+                              height: MediaQuery.of(context).size.height * .2,
+                              // decoration: BoxDecoration(
+                              //   borderRadius: BorderRadius.circular(25),
+                              //   image: const DecorationImage(
+                              //     fit: BoxFit.cover,
+                              //     image: AssetImage(
+                              //       'assets/images/logo.png',
+                              //     ),
+                              //   ),
+                              // ),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(
+                              'Sign in to Continue',
+                              style:
+                                  Theme.of(context).textTheme.headline6!.merge(
+                                        const TextStyle(
+                                          fontSize: 18,
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                   Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        'Sign in to Continue',
-                        style:
-                        Theme.of(context).textTheme.headline6!.merge(
-                          const TextStyle(
-                            fontSize: 18,
-                            color: Colors.grey,
-                          ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 10, horizontal: 20),
+                      child: Form(
+                        key: globalKey,
+                        child: Column(
+                          children: [
+                            _email(context),
+                            _password(context),
+                          ],
                         ),
                       ),
                     ),
+                    _buttonField(notifier),
                   ],
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                    vertical: 10, horizontal: 20),
-                child: Form(
-                  key: globalKey,
-                  child: Column(
-                    children: [
-                      _email(context),
-                      _password(context),
-                    ],
-                  ),
-                ),
-              ),
-              _buttonField(notifier),
-            ],
-          ),
-        ),
-      );
+            );
     });
   }
 
@@ -148,7 +149,7 @@ class _LoginScreenState extends State<LoginScreen> {
         keyboardType: TextInputType.emailAddress,
         controller: _emailController,
         validator: (input) =>
-        input!.isValidEmail() ? null : "check your email if is correct",
+            input!.isValidEmail() ? null : "check your email if is correct",
         decoration: InputDecoration(
           hintText: "Enter your email address",
           labelText: "Email",
@@ -217,7 +218,7 @@ class _LoginScreenState extends State<LoginScreen> {
 extension EmailValidator on String {
   bool isValidEmail() {
     return RegExp(
-        r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$')
+            r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$')
         .hasMatch(this);
   }
 }

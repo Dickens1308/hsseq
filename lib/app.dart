@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:hsseq/screen/IncidentScreen.dart';
+import 'package:hsseq/screen/incident_screen.dart';
 import 'package:hsseq/screen/all_incident.dart';
 import 'package:hsseq/screen/create_incident.dart';
 import 'package:hsseq/screen/dashboard_screen.dart';
