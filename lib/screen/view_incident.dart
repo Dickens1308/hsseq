@@ -21,7 +21,9 @@ class _ViewIncidentState extends State<ViewIncident> {
         scrollDirection: Axis.vertical,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [],
+          children:const [
+
+          ],
         ),
       ),
     );

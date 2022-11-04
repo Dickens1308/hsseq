@@ -1,146 +1,223 @@
+// ignore_for_file: depend_on_referenced_packages
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hsseq/provider/auth_provider.dart';
-
-// ignore: depend_on_referenced_packages
 import 'package:provider/provider.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
-
+  const LoginScreen({Key? key}) : super(key: key);
   static const routeName = '/login';
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  _LoginScreenState createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController _emailController =
-      TextEditingController(text: "amsangi@springtech.co.tz");
-  final TextEditingController _passwordController =
-      TextEditingController(text: "admin");
+  final _emailController = TextEditingController(text: "amsangi@springtech.co.tz");
+  final _passwordController = TextEditingController(text: "admin");
 
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  bool obscure = true;
+  GlobalKey<FormState> globalKey = GlobalKey<FormState>();
+  bool _viewPassword = true;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+    return Consumer<AuthProvider>(builder: (context, notifier, child) {
+      return notifier.isLoading
+          ? const Scaffold(
+        body: Center(
+          child: CupertinoActivityIndicator(
+            radius: 15,
+          ),
+        ),
+      )
+          : Scaffold(
+        appBar: AppBar(
+          iconTheme: const IconThemeData(color: Colors.black),
+          backgroundColor: Colors.white,
+          elevation: 0,
+        ),
+        backgroundColor: Colors.white,
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(bottom: 30),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(6.0),
+                      child: Container(
+                        height: MediaQuery.of(context).size.height * .2,
+                        // decoration: BoxDecoration(
+                        //   borderRadius: BorderRadius.circular(25),
+                        //   image: const DecorationImage(
+                        //     fit: BoxFit.cover,
+                        //     image: AssetImage(
+                        //       'assets/images/logo.png',
+                        //     ),
+                        //   ),
+                        // ),
+                      ),
+                    ),
+                   Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        'Sign in to Continue',
+                        style:
+                        Theme.of(context).textTheme.headline6!.merge(
+                          const TextStyle(
+                            fontSize: 18,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                    vertical: 10, horizontal: 20),
+                child: Form(
+                  key: globalKey,
+                  child: Column(
+                    children: [
+                      _email(context),
+                      _password(context),
+                    ],
+                  ),
+                ),
+              ),
+              _buttonField(notifier),
+            ],
+          ),
+        ),
+      );
+    });
+  }
+
+  Widget _password(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 30),
+      child: TextFormField(
+        keyboardType: TextInputType.visiblePassword,
+        obscureText: _viewPassword,
+        controller: _passwordController,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        validator: (input) => input!.length < 4
+            ? "Password length should have more than 4 characters"
+            : null,
+        decoration: InputDecoration(
+          hintText: "Enter your password",
+          labelText: "Password",
+          labelStyle: const TextStyle(
+            fontSize: 24,
+          ),
+          prefixIcon: const Icon(
+            Icons.lock,
+          ),
+          suffixIcon: IconButton(
+            onPressed: () {
+              setState(() {
+                _viewPassword = !_viewPassword;
+              });
+            },
+            icon: Icon(
+              _viewPassword ? Icons.visibility_off : Icons.visibility,
+              color: Colors.grey,
+            ),
+          ),
+          floatingLabelBehavior: FloatingLabelBehavior.always,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(20),
+            borderSide: const BorderSide(),
+            gapPadding: 10,
+          ),
+        ),
       ),
-      body: Consumer<AuthProvider>(builder: (context, provider, child) {
-        return provider.isLoading
-            ? const Center(
-                child: CircularProgressIndicator(),
-              )
-            : Form(
-                key: _formKey,
-                child: Padding(
-                    padding: const EdgeInsets.all(10),
-                    child: ListView(
-                      children: <Widget>[
-                        Container(
-                            alignment: Alignment.center,
-                            padding: const EdgeInsets.all(10),
-                            child: const Text(
-                              'Company Title',
-                              style: TextStyle(
-                                  color: Colors.blue,
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 30),
-                            )),
-                        Container(
-                            alignment: Alignment.center,
-                            padding: const EdgeInsets.all(10),
-                            child: const Text(
-                              'Sign in to continue',
-                              style: TextStyle(fontSize: 20),
-                            )),
-                        Container(
-                          padding: const EdgeInsets.all(10),
-                          child: TextFormField(
-                            controller: _emailController,
-                            validator: (email) {
-                              if (isEmailValid(email!)) {
-                                return null;
-                              } else {
-                                return "Enter valid email address";
-                              }
-                            },
-                            decoration: const InputDecoration(
-                              border: OutlineInputBorder(),
-                              labelText: 'Email',
-                            ),
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
-                          child: TextFormField(
-                            obscureText: obscure,
-                            controller: _passwordController,
-                            validator: (password) {
-                              if (isPasswordValid(password!)) {
-                                return null;
-                              } else {
-                                return "Password length must be greater than or equal 4";
-                              }
-                            },
-                            decoration: InputDecoration(
-                              border: const OutlineInputBorder(),
-                              suffixIcon: IconButton(
-                                onPressed: () {
-                                  setState(() {
-                                    obscure = !obscure;
-                                  });
-                                },
-                                icon: const Icon(Icons.visibility),
-                              ),
-                              labelText: 'Password',
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 30),
-                        Container(
-                            height: 50,
-                            padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                            child: ElevatedButton(
-                              child: const Text('Login'),
-                              onPressed: () => provider.loginUser(
-                                _emailController.text,
-                                _passwordController.text,
-                                context,
-                              ),
-                            )),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            const Text('Does not have account?'),
-                            TextButton(
-                              child: const Text(
-                                'Sign in',
-                                style: TextStyle(fontSize: 20),
-                              ),
-                              onPressed: () {
-                                //signup screen
-                              },
-                            )
-                          ],
-                        ),
-                      ],
-                    )),
-              );
-      }),
     );
   }
 
-  //Validation email and password
-  bool isPasswordValid(String password) => password.length >= 4;
+  Widget _email(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 30),
+      child: TextFormField(
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        keyboardType: TextInputType.emailAddress,
+        controller: _emailController,
+        validator: (input) =>
+        input!.isValidEmail() ? null : "check your email if is correct",
+        decoration: InputDecoration(
+          hintText: "Enter your email address",
+          labelText: "Email",
+          labelStyle: const TextStyle(
+            fontSize: 24,
+          ),
+          prefixIcon: const Icon(
+            Icons.mail,
+          ),
+          floatingLabelBehavior: FloatingLabelBehavior.always,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(20),
+            borderSide: const BorderSide(),
+            gapPadding: 10,
+          ),
+        ),
+      ),
+    );
+  }
 
-  bool isEmailValid(String email) {
-    bool pattern = RegExp(
-            r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
-        .hasMatch(email);
-    return pattern;
+  Widget _buttonField(notifier) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 20, top: 30, right: 20, bottom: 20),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(8),
+        onTap: () async {
+          if (globalKey.currentState!.validate()) {
+            globalKey.currentState!.save();
+
+            notifier.loginUser(
+              _emailController.text,
+              _passwordController.text,
+              context,
+            );
+          }
+        },
+        child: AnimatedContainer(
+            curve: Curves.easeInOutCubic,
+            padding: const EdgeInsets.fromLTRB(40, 10, 40, 10),
+            decoration: BoxDecoration(
+              color: Colors.deepPurple[500],
+              borderRadius: BorderRadius.circular(8),
+            ),
+            duration: const Duration(milliseconds: 400),
+            child: SizedBox(
+              width: MediaQuery.of(context).size.width,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "Login",
+                    style: Theme.of(context)
+                        .textTheme
+                        .headline5!
+                        .merge(const TextStyle(color: Colors.white)),
+                  ),
+                ],
+              ),
+            )),
+      ),
+    );
+  }
+}
+
+extension EmailValidator on String {
+  bool isValidEmail() {
+    return RegExp(
+        r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$')
+        .hasMatch(this);
   }
 }

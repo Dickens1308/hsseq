@@ -33,7 +33,6 @@ class _AllIncidentState extends State<AllIncident> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("All Incident"),
-
       ),
       body: Consumer<IncidentProvider>(
         builder: (context, provider, child) {
@@ -56,7 +55,11 @@ class _AllIncidentState extends State<AllIncident> {
 
                             return GestureDetector(
                               onTap: () {
-                                Navigator.push(context, MaterialPageRoute(builder: (_) => ViewIncident(incident: incident)));
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (_) =>
+                                            ViewIncident(incident: incident)));
                               },
                               behavior: HitTestBehavior.opaque,
                               child: Padding(
@@ -102,8 +105,9 @@ class _AllIncidentState extends State<AllIncident> {
                                         children: [
                                           Text(
                                             DateFormat('MMM d, yyyy').format(
-                                                DateTime.parse(
-                                                    incident.createdAt.toString())),
+                                                DateTime.parse(incident
+                                                    .createdAt
+                                                    .toString())),
                                             style: Theme.of(context)
                                                 .textTheme
                                                 .bodyText1!
@@ -124,19 +128,29 @@ class _AllIncidentState extends State<AllIncident> {
                                             color: Colors.blue,
                                           ),
                                           const SizedBox(width: 3),
-                                      Text(
-                                        incident.riskLevel.toString(),
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodyText1!
-                                            .merge(
-                                          const TextStyle(
-                                            fontWeight: FontWeight.w600,
-                                            color: Colors.blue,
-                                            fontSize: 12,
+                                          Text(
+                                            incident.riskLevel.toString(),
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodyText1!
+                                                .merge(
+                                                  TextStyle(
+                                                    fontWeight: FontWeight.w600,
+                                                    color: incident.riskLevel
+                                                                .toString()
+                                                                .toLowerCase() ==
+                                                            "high"
+                                                        ? Colors.red
+                                                        : (incident.riskLevel
+                                                                    .toString()
+                                                                    .toLowerCase() ==
+                                                                "medium"
+                                                            ? Colors.green
+                                                            : Colors.grey),
+                                                    fontSize: 12,
+                                                  ),
+                                                ),
                                           ),
-                                        ),
-                                      ),
                                           const SizedBox(width: 3),
                                           Container(
                                             margin: const EdgeInsets.only(
@@ -147,14 +161,16 @@ class _AllIncidentState extends State<AllIncident> {
                                           ),
                                           const SizedBox(width: 3),
                                           Text(
-                                            incident.isViewed.toString() == "0" ? "Viewed" : "Not Viewed",
+                                            incident.isViewed.toString() == "1"
+                                                ? "Viewed"
+                                                : "Not Viewed",
                                             style: Theme.of(context)
                                                 .textTheme
                                                 .bodyText1!
                                                 .merge(
                                                   const TextStyle(
                                                     fontWeight: FontWeight.w600,
-                                                    color: Colors.blue,
+                                                    color: Colors.grey,
                                                     fontSize: 12,
                                                   ),
                                                 ),

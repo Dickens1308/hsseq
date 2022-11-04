@@ -19,8 +19,6 @@ class AuthApi {
       result =
           await http.post(url, body: {"email": email, "password": password});
 
-      log("Hello there");
-
       if (result.statusCode == 200) {
         Map<String, dynamic> json =
             Map<String, dynamic>.from(jsonDecode(result.body)["data"]["user"]);
@@ -30,6 +28,7 @@ class AuthApi {
         String token = jsonDecode(result.body)["data"]["token"];
 
         token.isNotEmpty ? saveTokenPref(token) : null;
+        saveUserPref(user.id);
 
         return user;
       } else {
@@ -64,5 +63,10 @@ class AuthApi {
   saveTokenPref(String? token) async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     preferences.setString("token", token!);
+  }
+
+  saveUserPref(String? guid) async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    preferences.setString("guid", guid!);
   }
 }

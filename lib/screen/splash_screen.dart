@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:hsseq/screen/incident_page.dart';
+import 'package:hsseq/screen/dashboard_screen.dart';
 import 'package:hsseq/screen/login_screen.dart';
 // ignore: depend_on_referenced_packages
 import 'package:shared_preferences/shared_preferences.dart';
@@ -20,7 +20,7 @@ class _SplashScreenState extends State<SplashScreen> {
           if (value != null)
             {
               Navigator.pushNamedAndRemoveUntil(
-                  context, IncidentPage.routeName, (route) => false),
+                  context, DashboardScreen.routeName, (route) => false),
             }
           else
             {

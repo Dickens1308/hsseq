@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hsseq/api/auth_api.dart';
 import 'package:hsseq/model/user.dart';
-import 'package:hsseq/screen/incident_page.dart';
+import 'package:hsseq/screen/dashboard_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthProvider extends ChangeNotifier {
@@ -31,7 +31,7 @@ class AuthProvider extends ChangeNotifier {
         Fluttertoast.showToast(
           msg: "Check you internet connection!",
           toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.CENTER,
+          gravity: ToastGravity.BOTTOM,
           timeInSecForIosWeb: 1,
           backgroundColor: Colors.red,
           textColor: Colors.white,
@@ -46,8 +46,8 @@ class AuthProvider extends ChangeNotifier {
         setUser(list);
         setIsLogged(true);
         // ignore: use_build_context_synchronously
-        Navigator.of(context)
-            .pushNamedAndRemoveUntil(IncidentPage.routeName, (route) => false);
+        Navigator.of(context).pushNamedAndRemoveUntil(
+            DashboardScreen.routeName, (route) => false);
       }
 
       setIsLoading(false);
@@ -115,7 +115,6 @@ class AuthProvider extends ChangeNotifier {
           return true;
         }
       } on SocketException catch (_) {
-        Fluttertoast.showToast(msg: "This is socket toast");
         return false;
       }
     } else {
