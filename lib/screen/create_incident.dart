@@ -1,6 +1,7 @@
 // ignore_for_file: depend_on_referenced_packages
 
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -20,9 +21,9 @@ class CreateIncident extends StatefulWidget {
 }
 
 class _CreateIncidentState extends State<CreateIncident> {
-  final _actionController = TextEditingController(text: "Please check before sunday this incident");
-  final _locationController = TextEditingController(text: "Mbezi");
-  final _descController = TextEditingController(text: "This is description body for application");
+  final _actionController = TextEditingController();
+  final _locationController = TextEditingController();
+  final _descController = TextEditingController();
 
   //Risk Level Alerts
   String? _risk;
@@ -41,11 +42,29 @@ class _CreateIncidentState extends State<CreateIncident> {
       var pickedFiles =
           isPermissionAllowed ? await imagePicker.pickMultiImage() : null;
       if (pickedFiles != null) {
-        _toasterMessage("${pickedFiles.length} image(s) selected", Colors.blue);
-        log("Total image(s) selected: ${pickedFiles.length}");
+        setState(() {
+          imageFiles!.addAll(pickedFiles);
+        });
+      } else {
+        _toasterMessage("No image file selected", Colors.blue);
+        log("No image is selected.");
+      }
+    } catch (e) {
+      log(e.toString());
+    }
+  }
 
-        imageFiles = pickedFiles;
-        setState(() {});
+  openCameraGallery() async {
+    try {
+      var isPermissionAllowed = await _checkCameraPermission();
+      XFile? pickedFiles = isPermissionAllowed
+          ? await imagePicker.pickImage(source: ImageSource.camera)
+          : null;
+
+      if (pickedFiles != null) {
+        setState(() {
+          imageFiles!.add(pickedFiles);
+        });
       } else {
         _toasterMessage("No image file selected", Colors.blue);
         log("No image is selected.");
@@ -79,20 +98,7 @@ class _CreateIncidentState extends State<CreateIncident> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Text(
-                                'Fill in the form below to create incidence',
-                                textAlign: TextAlign.center,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .headline6!
-                                    .merge(
-                                      const TextStyle(
-                                        fontSize: 16,
-                                        color: Colors.grey,
-                                      ),
-                                    ),
-                              ),
-                              const SizedBox(height: 30),
+                              const SizedBox(height: 10),
                               _riskLevelDropDown(context),
                               const SizedBox(height: 10),
                               _locationField(context),
@@ -105,14 +111,33 @@ class _CreateIncidentState extends State<CreateIncident> {
                                 width: double.infinity,
                                 height: 50,
                                 child: OutlinedButton(
+                                  onPressed: () => openCameraGallery(),
+                                  child: const Padding(
+                                    padding:
+                                        EdgeInsets.only(top: 10, bottom: 10),
+                                    child: Text("Upload By Camera"),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              SizedBox(
+                                width: double.infinity,
+                                height: 50,
+                                child: OutlinedButton(
                                   onPressed: () => openImageGallery(),
                                   child: const Padding(
                                     padding:
                                         EdgeInsets.only(top: 10, bottom: 10),
-                                    child: Text("Upload Images"),
+                                    child: Text("Upload From File"),
                                   ),
                                 ),
                               ),
+                              imageFiles != null
+                                  ? Padding(
+                                      padding: const EdgeInsets.only(top: 10),
+                                      child: buildGridView(),
+                                    )
+                                  : const SizedBox(height: 8),
                               const SizedBox(height: 30),
                               SizedBox(
                                 width: double.infinity,
@@ -155,7 +180,6 @@ class _CreateIncidentState extends State<CreateIncident> {
                                         Navigator.of(context).pop(true);
                                       }
                                     }
-
                                   },
                                   child: const Padding(
                                     padding:
@@ -176,13 +200,74 @@ class _CreateIncidentState extends State<CreateIncident> {
     );
   }
 
+  Widget buildGridView() {
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisSpacing: 6,
+        mainAxisSpacing: 6,
+        crossAxisCount: 2,
+      ),
+      itemCount: imageFiles!.length,
+      itemBuilder: (context, index) {
+        return Stack(
+          children: [
+            Container(
+              height: MediaQuery.of(context).size.height * .22,
+              width: MediaQuery.of(context).size.width,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(5),
+                image: DecorationImage(
+                  image: FileImage(File(imageFiles![index].path)),
+                  fit: BoxFit.cover,
+                  colorFilter: ColorFilter.mode(
+                      Colors.black.withOpacity(0.2), BlendMode.darken),
+                ),
+              ),
+            ),
+            Positioned(
+              right: 2,
+              top: 4,
+              child: GestureDetector(
+                onTap: () {
+                  setState(() {
+                    imageFiles!
+                        .removeWhere((e) => e.path == imageFiles![index].path);
+                  });
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    color: Colors.blue.shade300,
+                  ),
+                  width: 35,
+                  height: 35,
+                  child: const Icon(
+                    Icons.close,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Widget _riskLevelDropDown(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           'Risk Level',
-          style: Theme.of(context).textTheme.headline6,
+          style: Theme.of(context).textTheme.headline6!.merge(
+                const TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey,
+                ),
+              ),
         ),
         const SizedBox(height: 8),
         Container(
@@ -203,6 +288,7 @@ class _CreateIncidentState extends State<CreateIncident> {
                 'Select Risk Level',
                 style: TextStyle(
                   fontSize: 18,
+                  color: Colors.grey,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -322,11 +408,23 @@ class _CreateIncidentState extends State<CreateIncident> {
     }
   }
 
+  Future<bool> _checkCameraPermission() async {
+    Map<Permission, PermissionStatus> status =
+        await [Permission.camera].request();
+
+    if (status[Permission.camera]!.isGranted) {
+      return true;
+    } else {
+      _toasterMessage("Failed to open camera!", Colors.red);
+      return false;
+    }
+  }
+
   void _toasterMessage(String msg, Color colors) {
     Fluttertoast.showToast(
       msg: msg,
       toastLength: Toast.LENGTH_LONG,
-      gravity: ToastGravity.CENTER,
+      gravity: ToastGravity.BOTTOM,
       timeInSecForIosWeb: 1,
       backgroundColor: colors,
       textColor: Colors.white,

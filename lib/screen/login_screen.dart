@@ -51,17 +51,18 @@ class _LoginScreenState extends State<LoginScreen> {
                             padding: const EdgeInsets.all(6.0),
                             child: Container(
                               height: MediaQuery.of(context).size.height * .2,
-                              // decoration: BoxDecoration(
-                              //   borderRadius: BorderRadius.circular(25),
-                              //   image: const DecorationImage(
-                              //     fit: BoxFit.cover,
-                              //     image: AssetImage(
-                              //       'assets/images/logo.png',
-                              //     ),
-                              //   ),
-                              // ),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(25),
+                                image: const DecorationImage(
+                                  fit: BoxFit.contain,
+                                  image: AssetImage(
+                                    'assets/images/logo.jpeg',
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
+                          const SizedBox(height: 60),
                           Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Text(
@@ -190,7 +191,7 @@ class _LoginScreenState extends State<LoginScreen> {
             curve: Curves.easeInOutCubic,
             padding: const EdgeInsets.fromLTRB(40, 10, 40, 10),
             decoration: BoxDecoration(
-              color: Colors.deepPurple[500],
+              color: Colors.blue[500],
               borderRadius: BorderRadius.circular(8),
             ),
             duration: const Duration(milliseconds: 400),

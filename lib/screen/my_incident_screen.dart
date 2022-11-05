@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:hsseq/model/incident.dart';
 import 'package:hsseq/provider/incident_provider.dart';
 import 'package:hsseq/screen/create_incident.dart';
+import 'package:hsseq/screen/view_incident.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 
 class MyIncidentScreen extends StatefulWidget {
   const MyIncidentScreen({Key? key}) : super(key: key);
@@ -78,106 +80,7 @@ class _MyIncidentScreenState extends State<MyIncidentScreen> {
                       scrollDirection: Axis.vertical,
                       itemBuilder: (context, index) {
                         Incident incident = notify.myIncidentList[index];
-                        return GestureDetector(
-                          onTap: () {},
-                          behavior: HitTestBehavior.opaque,
-                          child: Padding(
-                            padding: const EdgeInsets.only(
-                                left: 15, right: 15, top: 15),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8),
-                                color: Colors.white,
-                                boxShadow: [
-                                  BoxShadow(
-                                    spreadRadius: .4,
-                                    blurRadius: .4,
-                                    offset: const Offset(1, 0),
-                                    color:
-                                        const Color.fromARGB(255, 179, 179, 179)
-                                            .withOpacity(.3),
-                                  ),
-                                ],
-                              ),
-                              child: ListTile(
-                                leading: CircleAvatar(
-                                  backgroundColor:
-                                      Colors.deepPurple.withOpacity(.1),
-                                  radius: 20,
-                                  child: const Icon(
-                                    Icons.home_outlined,
-                                    color: Colors.deepPurple,
-                                  ),
-                                ),
-                                title: Text(
-                                  incident.description.toString(),
-                                  style: Theme.of(context).textTheme.headline6,
-                                ),
-                                subtitle: Padding(
-                                  padding: const EdgeInsets.only(top: 6),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: [
-                                      Text(
-                                        "12/12/2022",
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodyText1!
-                                            .merge(
-                                              const TextStyle(
-                                                fontWeight: FontWeight.w600,
-                                                color: Colors.grey,
-                                                fontSize: 12,
-                                              ),
-                                            ),
-                                      ),
-                                      const SizedBox(width: 3),
-                                      Container(
-                                        margin:
-                                            const EdgeInsets.only(bottom: 2),
-                                        height: 10,
-                                        width: 2,
-                                        color: Colors.deepPurple,
-                                      ),
-                                      const SizedBox(width: 3),
-                                      Container(
-                                        margin:
-                                            const EdgeInsets.only(bottom: 2),
-                                        height: 10,
-                                        width: 2,
-                                        color: Colors.deepPurple,
-                                      ),
-                                      const SizedBox(width: 3),
-                                      Text(
-                                        incident.happenedAt.toString(),
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodyText1!
-                                            .merge(
-                                              const TextStyle(
-                                                fontWeight: FontWeight.w600,
-                                                color: Colors.blue,
-                                                fontSize: 12,
-                                              ),
-                                            ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                trailing: IconButton(
-                                  icon: const Icon(
-                                    Icons.arrow_forward_ios,
-                                    size: 18,
-                                    color: Colors.deepPurple,
-                                  ),
-                                  onPressed: () {},
-                                ),
-                              ),
-                            ),
-                          ),
-                        );
+                        return IncidentListTile(incident: incident);
                       });
         },
       ),
@@ -194,6 +97,111 @@ class _MyIncidentScreenState extends State<MyIncidentScreen> {
                   });
         },
         child: const Icon(Icons.add),
+      ),
+    );
+  }
+}
+
+class IncidentListTile extends StatelessWidget {
+  const IncidentListTile({super.key, required this.incident});
+
+  final Incident incident;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (builder) => ViewIncident(incident: incident),
+        ),
+      ),
+      behavior: HitTestBehavior.opaque,
+      child: Padding(
+        padding: const EdgeInsets.only(left: 15, right: 15, top: 15),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                spreadRadius: .4,
+                blurRadius: .4,
+                offset: const Offset(1, 0),
+                color: const Color.fromARGB(255, 179, 179, 179).withOpacity(.3),
+              ),
+            ],
+          ),
+          child: ListTile(
+              leading: CircleAvatar(
+                backgroundColor: Colors.blue.withOpacity(.1),
+                radius: 20,
+                child: const Icon(
+                  Icons.alarm_outlined,
+                  color: Colors.blue,
+                ),
+              ),
+              title: Text(
+                incident.location.toString(),
+                style: Theme.of(context).textTheme.headline6,
+              ),
+              subtitle: Padding(
+                padding: const EdgeInsets.only(top: 6),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      DateFormat('MMM d, yyyy').format(
+                          DateTime.parse(incident.createdAt.toString())),
+                      style: Theme.of(context).textTheme.bodyText1!.merge(
+                            const TextStyle(
+                              fontWeight: FontWeight.w600,
+                              color: Colors.grey,
+                              fontSize: 12,
+                            ),
+                          ),
+                    ),
+                    Container(
+                      margin:
+                          const EdgeInsets.only(bottom: 2, left: 15, right: 15),
+                      height: 10,
+                      width: 2,
+                      color: Colors.blue,
+                    ),
+                    const SizedBox(width: 3),
+                    Text(
+                      incident.riskLevel.toString(),
+                      style: Theme.of(context).textTheme.bodyText1!.merge(
+                            TextStyle(
+                              fontWeight: FontWeight.w600,
+                              color:
+                                  incident.riskLevel.toString().toLowerCase() ==
+                                          "high"
+                                      ? Colors.red
+                                      : (incident.riskLevel
+                                                  .toString()
+                                                  .toLowerCase() ==
+                                              "medium"
+                                          ? Colors.green
+                                          : Colors.grey),
+                              fontSize: 12,
+                            ),
+                          ),
+                    ),
+                  ],
+                ),
+              ),
+              trailing: Icon(
+                incident.isViewed.toString() != "0"
+                    ? Icons.check_rounded
+                    : Icons.close,
+                size: 24,
+                color: incident.isViewed.toString() != "0"
+                    ? Colors.blue
+                    : Colors.red,
+              )),
+        ),
       ),
     );
   }

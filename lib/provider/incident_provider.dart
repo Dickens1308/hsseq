@@ -1,4 +1,4 @@
-// ignore_for_file: depend_on_referenced_packages
+// ignore_for_file: depend_on_referenced_packages, use_build_context_synchronously
 
 import 'dart:developer';
 import 'dart:io';
@@ -65,8 +65,7 @@ class IncidentProvider extends ChangeNotifier {
   void fetchMyIncident(BuildContext context) async {
     try {
       setIsLoading(true);
-      String? guid = await _getUserPref();
-      List<Incident> list = await api.fetchMyIncident(guid);
+      List<Incident> list = await api.fetchMyIncident();
 
       if (list.isNotEmpty) {
         setMyIncidentList(list);
@@ -98,12 +97,14 @@ class IncidentProvider extends ChangeNotifier {
           : null;
 
       Fluttertoast.showToast(
-        msg: message.toString(),
-        toastLength: Toast.LENGTH_SHORT,
-      );
+          msg: message.toString(),
+          toastLength: Toast.LENGTH_LONG,
+          backgroundColor: Colors.blue);
 
       if (message.toString() == "Incident reported") {
         log("Incident was reported");
+        setIsLoading(false);
+
         return true;
       } else {
         setIsLoading(false);
@@ -112,9 +113,130 @@ class IncidentProvider extends ChangeNotifier {
       }
     } catch (e) {
       log(e.toString());
+
+      Fluttertoast.showToast(
+        msg: e.toString().replaceAll("Exception: ", ""),
+        toastLength: Toast.LENGTH_LONG,
+        backgroundColor: Colors.red,
+      );
+
       setIsLoading(false);
 
       return false;
+    }
+  }
+
+  //Update Incident
+  Future<Incident?> updateIncident(BuildContext context, String? uuid,
+      String? risk, String? location, String desc, String? action) async {
+    try {
+      setIsLoading(true);
+      bool isConnected = await _checkConnection();
+
+      Incident? incident = isConnected
+          ? await api.updateIncident(uuid, risk, location, desc, action)
+          : null;
+
+      if (incident != null) {
+        incident = modifyMyIncident(incident);
+        setIsLoading(false);
+
+        return incident;
+      } else {
+        setIsLoading(false);
+
+        Fluttertoast.showToast(
+          msg: "Incident was not updated",
+          toastLength: Toast.LENGTH_SHORT,
+        );
+
+        log("Incident was not updated");
+        return null;
+      }
+    } catch (e) {
+      Fluttertoast.showToast(
+        msg: e.toString(),
+        toastLength: Toast.LENGTH_SHORT,
+      );
+
+      log(e.toString());
+      setIsLoading(false);
+
+      return null;
+    }
+  }
+
+  // Delete Incident
+  Future<void> deleteIncident(BuildContext context, String? uuid) async {
+    try {
+      setIsLoading(true);
+      bool isConnected = await _checkConnection();
+
+      String? message = isConnected ? await api.deleteIncident(uuid) : null;
+
+      if (message == "Incident deleted") {
+        _deleteData(uuid);
+
+        Fluttertoast.showToast(
+          msg: "Incident was successful deleted!",
+          toastLength: Toast.LENGTH_SHORT,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+        );
+
+        Navigator.of(context).pop();
+      }
+    } catch (e) {
+      log(e.toString());
+      Fluttertoast.showToast(
+        msg: e.toString(),
+        toastLength: Toast.LENGTH_SHORT,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  //Delete data in the list  after success delete
+  // Notify Listener for the changes
+  void _deleteData(String? uuid) {
+    try {
+      // Searching for model in the list
+      _myIncidentList.removeWhere((e) => e.id == uuid);
+      notifyListeners();
+    } catch (e) {
+      log(e.toString());
+    }
+  }
+
+  //Update data inside detail screen and list after success update
+  // Notify Listener for the changes
+  Incident? modifyMyIncident(Incident incident) {
+    try {
+      // Searching for model in the list
+      Incident tempIncident = _myIncidentList[
+          _myIncidentList.indexWhere((e) => e.id == incident.id)];
+
+      tempIncident.location = incident.location;
+      tempIncident.description = incident.description;
+      tempIncident.immediateActionTaken = incident.immediateActionTaken;
+      tempIncident.riskLevel = incident.riskLevel;
+      tempIncident.updatedAt = incident.updatedAt;
+
+      notifyListeners();
+
+      return tempIncident;
+    } catch (e) {
+      Fluttertoast.showToast(
+        msg: "Encountered an error while searching!",
+        toastLength: Toast.LENGTH_SHORT,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
+
+      return null;
     }
   }
 
