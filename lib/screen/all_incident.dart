@@ -1,6 +1,8 @@
 // ignore_for_file: depend_on_referenced_packages
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hsseq/model/incident.dart';
 import 'package:hsseq/provider/incident_provider.dart';
 import 'package:hsseq/screen/login_screen.dart';
@@ -18,6 +20,15 @@ class AllIncident extends StatefulWidget {
 }
 
 class _AllIncidentState extends State<AllIncident> {
+  ScrollController controller = ScrollController();
+  List<Incident?> myList = [];
+
+  @override
+  void dispose() {
+    super.dispose();
+    controller.removeListener(_scrollListener);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -25,6 +36,26 @@ class _AllIncidentState extends State<AllIncident> {
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       Provider.of<IncidentProvider>(context, listen: false).fetchAllIncident();
     });
+
+    controller.addListener(() => _scrollListener());
+  }
+
+  _scrollListener() async {
+    if (controller.position.pixels == controller.position.maxScrollExtent) {
+      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+        Provider.of<IncidentProvider>(context, listen: false)
+            .fetchMoreAllIncident()
+            .then((value) {
+          if (value == null) {
+            Fluttertoast.showToast(
+                msg: "No more incident to load",
+                textColor: Colors.white,
+                backgroundColor: Colors.red,
+                toastLength: Toast.LENGTH_SHORT);
+          }
+        });
+      });
+    }
   }
 
   @override
@@ -39,25 +70,44 @@ class _AllIncidentState extends State<AllIncident> {
               ? const Center(
                   child: CircularProgressIndicator(),
                 )
-              : SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  scrollDirection: Axis.vertical,
-                  child: Column(
-                    children: [
-                      ListView.builder(
-                          physics: const NeverScrollableScrollPhysics(),
-                          shrinkWrap: true,
-                          scrollDirection: Axis.vertical,
-                          itemCount: provider.incidentList.length,
-                          itemBuilder: (ctx, i) {
-                            Incident incident = provider.incidentList[i];
+              : RefreshIndicator(
+                  onRefresh: () => provider.fetchAllIncident(),
+                  child: RawScrollbar(
+                    thumbColor: Colors.grey,
+                    controller: controller,
+                    thickness: 1,
+                    child: SingleChildScrollView(
+                      controller: controller,
+                      physics: const BouncingScrollPhysics(),
+                      scrollDirection: Axis.vertical,
+                      child: Column(
+                        children: [
+                          ListView.builder(
+                            physics: const NeverScrollableScrollPhysics(),
+                            shrinkWrap: true,
+                            scrollDirection: Axis.vertical,
+                            itemCount: provider.incidentList.length,
+                            itemBuilder: (ctx, i) {
+                              Incident incident = provider.incidentList[i];
 
-                            return IncidentListTile(
-                              incident: incident,
-                              parentChild: 'all_incident',
-                            );
-                          })
-                    ],
+                              return IncidentListTile(
+                                incident: incident,
+                                parentChild: 'all_incident',
+                              );
+                            },
+                          ),
+                          provider.loadMoreAll
+                              ? const Padding(
+                                  padding: EdgeInsets.only(top: 20),
+                                  child: CupertinoActivityIndicator(
+                                    animating: true,
+                                    radius: 12,
+                                  ),
+                                )
+                              : const SizedBox(),
+                        ],
+                      ),
+                    ),
                   ),
                 );
         },

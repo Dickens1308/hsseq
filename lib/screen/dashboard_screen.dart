@@ -111,7 +111,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               children: [
                 ContainerScreen(
                     title: "Incident\nReporting",
-                    iconData: Ionicons.alert_outline,
+                    iconData: Ionicons.warning_outline,
                     function: () {
                       _checkRoles()
                           ? Navigator.of(context)

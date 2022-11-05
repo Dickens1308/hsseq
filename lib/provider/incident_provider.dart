@@ -47,7 +47,7 @@ class IncidentProvider extends ChangeNotifier {
   }
 
   //Fetch All data
-  void fetchAllIncident() {
+  Future<void> fetchAllIncident() async {
     setIsLoading(true);
     api
         .fetchAllIncident()
@@ -71,6 +71,7 @@ class IncidentProvider extends ChangeNotifier {
   Future<List<Incident>?> fetchMyIncident(BuildContext context) async {
     try {
       setIsLoading(true);
+      setLoadMore(false);
       List<Incident> list = await api.fetchMyIncident();
 
       if (list.isNotEmpty) {
@@ -93,6 +94,94 @@ class IncidentProvider extends ChangeNotifier {
       log(e.toString());
     }
 
+    return null;
+  }
+
+  // Pagination and Road More Fuction
+  int _page = 1;
+  bool _loadMore = false;
+  int get page => _page;
+  bool get loadMore => _loadMore;
+
+  void setPageNo(int num) {
+    _page = num;
+    notifyListeners();
+  }
+
+  void setLoadMore(bool more) {
+    _loadMore = more;
+    notifyListeners();
+  }
+
+  void addMoreToTheList(list) {
+    _myIncidentList.addAll(list);
+    notifyListeners();
+  }
+
+  //Fetch More Data
+  //Fetch My Incident Only
+  Future<List<Incident>?> fetchMoreMyIncident() async {
+    try {
+      setLoadMore(true);
+      List<Incident> list = await api.fetchMoreMyIncident(page);
+
+      if (list.isNotEmpty) {
+        addMoreToTheList(list);
+        setLoadMore(false);
+        setPageNo(_page + 1);
+
+        return list;
+      }
+    } catch (e) {
+      setLoadMore(false);
+      log(e.toString());
+    }
+
+    setLoadMore(false);
+    return null;
+  }
+
+  // Pagination and Road More Fuction
+  int _allPage = 1;
+  bool _loadAllMore = false;
+  int get allPage => _allPage;
+  bool get loadMoreAll => _loadAllMore;
+
+  void setPageNoAll(int num) {
+    _allPage = num;
+    notifyListeners();
+  }
+
+  void setLoadMoreAll(bool more) {
+    _loadAllMore = more;
+    notifyListeners();
+  }
+
+  void addMoreToTheAllList(list) {
+    _incidentList.addAll(list);
+    notifyListeners();
+  }
+
+  //Fetch More Data
+  //Fetch My Incident Only
+  Future<List<Incident>?> fetchMoreAllIncident() async {
+    try {
+      setLoadMoreAll(true);
+      List<Incident> list = await api.fetchMoreAllIncident(allPage);
+
+      if (list.isNotEmpty) {
+        addMoreToTheAllList(list);
+        setLoadMoreAll(false);
+        setPageNoAll(_allPage + 1);
+
+        return list;
+      }
+    } catch (e) {
+      setLoadMoreAll(false);
+      log(e.toString());
+    }
+
+    setLoadMoreAll(false);
     return null;
   }
 

@@ -135,6 +135,78 @@ class IncidentApi {
     return list;
   }
 
+  // Fetch More Data For My Incident
+  //Fetch My Incident
+  Future<List<Incident>> fetchMoreMyIncident(int page) async {
+    var url = Uri.parse(
+        "https://pft.springtech.co.tz/api/v1/incidents/staff?page=$page");
+
+    http.Response result;
+    List<Incident> list = [];
+
+    try {
+      String? token = await getTokenPref();
+      result = await http.get(
+        url,
+        headers: {
+          "accept": "application/json",
+          "Authorization": "Bearer $token"
+        },
+      );
+
+      if (result.statusCode == 200) {
+        var decodeMsg = jsonDecode(result.body)["data"]["data"];
+
+        var temp =
+            (decodeMsg as List).map((data) => Incident.fromJson(data)).toList();
+        list = temp;
+      } else {
+        String msg = jsonDecode(result.body)["message"];
+        throw Exception(msg);
+      }
+    } on SocketException catch (e) {
+      log("Error occurred $e");
+    }
+
+    return list;
+  }
+
+  // Fetch More Data For My Incident
+  //Fetch My Incident
+  Future<List<Incident>> fetchMoreAllIncident(int page) async {
+    var url = Uri.parse(
+        "https://pft.springtech.co.tz/api/v1/incidents/all?page=$page");
+
+    http.Response result;
+    List<Incident> list = [];
+
+    try {
+      String? token = await getTokenPref();
+      result = await http.get(
+        url,
+        headers: {
+          "accept": "application/json",
+          "Authorization": "Bearer $token"
+        },
+      );
+
+      if (result.statusCode == 200) {
+        var decodeMsg = jsonDecode(result.body)["data"]["data"];
+
+        var temp =
+            (decodeMsg as List).map((data) => Incident.fromJson(data)).toList();
+        list = temp;
+      } else {
+        String msg = jsonDecode(result.body)["message"];
+        throw Exception(msg);
+      }
+    } on SocketException catch (e) {
+      log("Error occurred $e");
+    }
+
+    return list;
+  }
+
   //Fetch All Incident
   Future<List<Incident>> fetchAllIncident() async {
     var url = Uri.parse("https://pft.springtech.co.tz/api/v1/incidents/all");

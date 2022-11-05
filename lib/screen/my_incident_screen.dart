@@ -1,6 +1,10 @@
 // ignore_for_file: depend_on_referenced_packages
 
+import 'dart:developer';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hsseq/model/incident.dart';
 import 'package:hsseq/provider/incident_provider.dart';
 import 'package:hsseq/screen/create_incident.dart';
@@ -19,6 +23,15 @@ class MyIncidentScreen extends StatefulWidget {
 }
 
 class _MyIncidentScreenState extends State<MyIncidentScreen> {
+  ScrollController controller = ScrollController();
+  List<Incident?> myList = [];
+
+  @override
+  void dispose() {
+    super.dispose();
+    controller.removeListener(_scrollListener);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -27,6 +40,26 @@ class _MyIncidentScreenState extends State<MyIncidentScreen> {
       Provider.of<IncidentProvider>(context, listen: false)
           .fetchMyIncident(context);
     });
+
+    controller.addListener(() => _scrollListener());
+  }
+
+  _scrollListener() async {
+    if (controller.position.pixels == controller.position.maxScrollExtent) {
+      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+        Provider.of<IncidentProvider>(context, listen: false)
+            .fetchMoreMyIncident()
+            .then((value) {
+          if (value == null) {
+            Fluttertoast.showToast(
+                msg: "No more incident to load",
+                textColor: Colors.white,
+                backgroundColor: Colors.red,
+                toastLength: Toast.LENGTH_SHORT);
+          }
+        });
+      });
+    }
   }
 
   @override
@@ -42,50 +75,8 @@ class _MyIncidentScreenState extends State<MyIncidentScreen> {
                   child: CircularProgressIndicator(),
                 )
               : notify.myIncidentList.isEmpty
-                  ? Center(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(1),
-                            child: Text(
-                              "No Incident Found!",
-                              style:
-                                  Theme.of(context).textTheme.headline5!.merge(
-                                        const TextStyle(
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(1),
-                            child: Text(
-                              "Please Add Incident From + button below!",
-                              style:
-                                  Theme.of(context).textTheme.bodyLarge!.merge(
-                                        const TextStyle(
-                                          color: Colors.grey,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                            ),
-                          )
-                        ],
-                      ),
-                    )
-                  : ListView.builder(
-                      itemCount: notify.myIncidentList.length,
-                      shrinkWrap: true,
-                      scrollDirection: Axis.vertical,
-                      itemBuilder: (context, index) {
-                        Incident incident = notify.myIncidentList[index];
-                        return IncidentListTile(
-                          incident: incident,
-                          parentChild: 'my_incident',
-                        );
-                      });
+                  ? icidentNotFound(context)
+                  : bodyListView(notify, context);
         },
       ),
       floatingActionButton: FloatingActionButton(
@@ -101,6 +92,83 @@ class _MyIncidentScreenState extends State<MyIncidentScreen> {
                   });
         },
         child: const Icon(Icons.add),
+      ),
+    );
+  }
+
+  RefreshIndicator bodyListView(IncidentProvider notify, BuildContext context) {
+    return RefreshIndicator(
+      onRefresh: () => notify.fetchMyIncident(context),
+      child: RawScrollbar(
+        thumbColor: Colors.grey,
+        controller: controller,
+        thickness: 1,
+        child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          controller: controller,
+          scrollDirection: Axis.vertical,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              ListView.builder(
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: notify.myIncidentList.length,
+                shrinkWrap: true,
+                scrollDirection: Axis.vertical,
+                itemBuilder: (context, index) {
+                  Incident incident = notify.myIncidentList[index];
+                  return IncidentListTile(
+                    incident: incident,
+                    parentChild: 'my_incident',
+                  );
+                },
+              ),
+              notify.loadMore
+                  ? const Padding(
+                      padding: EdgeInsets.only(top: 20),
+                      child: CupertinoActivityIndicator(
+                        animating: true,
+                        radius: 12,
+                      ),
+                    )
+                  : const SizedBox(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Center icidentNotFound(BuildContext context) {
+    return Center(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(1),
+            child: Text(
+              "No Incident Found!",
+              style: Theme.of(context).textTheme.headline5!.merge(
+                    const TextStyle(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(1),
+            child: Text(
+              "Please Add Incident From + button below!",
+              style: Theme.of(context).textTheme.bodyLarge!.merge(
+                    const TextStyle(
+                      color: Colors.grey,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+            ),
+          )
+        ],
       ),
     );
   }
@@ -146,7 +214,7 @@ class IncidentListTile extends StatelessWidget {
                 backgroundColor: Colors.blue.withOpacity(.1),
                 radius: 20,
                 child: const Icon(
-                  Ionicons.compass_outline,
+                  Ionicons.warning_outline,
                   color: Colors.blue,
                 ),
               ),
