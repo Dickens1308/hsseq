@@ -143,7 +143,7 @@ class Roles {
   }
 
   Roles.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
+    id = json['id'].toString();
     name = json['name'];
     guardName = json['guard_name'];
     createdAt = json['created_at'];

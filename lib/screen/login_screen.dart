@@ -61,7 +61,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                             ),
                           ),
-                          const SizedBox(height: 60),
+                          const SizedBox(height: 15),
                           Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Text(
@@ -80,7 +80,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(
-                          vertical: 10, horizontal: 20),
+                          vertical: 10, horizontal: 10),
                       child: Form(
                         key: globalKey,
                         child: Column(
@@ -143,7 +143,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Widget _email(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(top: 30),
+      padding: const EdgeInsets.only(top: 8),
       child: TextFormField(
         autovalidateMode: AutovalidateMode.onUserInteraction,
         keyboardType: TextInputType.emailAddress,

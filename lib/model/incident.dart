@@ -10,19 +10,21 @@ class Incident {
   String? createdAt;
   String? updatedAt;
   List<Images>? images;
+  Reporter? reporter;
 
   Incident(
       {this.id,
-        this.reportedBy,
-        this.riskLevel,
-        this.location,
-        this.description,
-        this.immediateActionTaken,
-        this.isViewed,
-        this.happenedAt,
-        this.createdAt,
-        this.updatedAt,
-        this.images});
+      this.reportedBy,
+      this.riskLevel,
+      this.location,
+      this.description,
+      this.immediateActionTaken,
+      this.isViewed,
+      this.happenedAt,
+      this.createdAt,
+      this.updatedAt,
+      this.images,
+      this.reporter});
 
   Incident.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -41,10 +43,13 @@ class Incident {
         images!.add(Images.fromJson(v));
       });
     }
+    reporter = json['reporter'] != null
+        ? new Reporter.fromJson(json['reporter'])
+        : null;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data =  <String, dynamic>{};
+    final Map<String, dynamic> data = <String, dynamic>{};
     data['id'] = id;
     data['reported_by'] = reportedBy;
     data['risk_level'] = riskLevel;
@@ -58,6 +63,10 @@ class Incident {
     if (images != null) {
       data['images'] = images!.map((v) => v.toJson()).toList();
     }
+    if (reporter != null) {
+      data['reporter'] = reporter!.toJson();
+    }
+
     return data;
   }
 }
@@ -84,6 +93,55 @@ class Images {
     data['id'] = id;
     data['incident_id'] = incidentId;
     data['path'] = path;
+    data['created_at'] = createdAt;
+    data['updated_at'] = updatedAt;
+    return data;
+  }
+}
+
+class Reporter {
+  String? id;
+  String? departmentId;
+  String? name;
+  String? email;
+  String? phoneNumber;
+  String? emailVerifiedAt;
+  String? isActive;
+  String? createdAt;
+  String? updatedAt;
+
+  Reporter(
+      {this.id,
+      this.departmentId,
+      this.name,
+      this.email,
+      this.phoneNumber,
+      this.emailVerifiedAt,
+      this.isActive,
+      this.createdAt,
+      this.updatedAt});
+
+  Reporter.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    departmentId = json['department_id'];
+    name = json['name'];
+    email = json['email'];
+    phoneNumber = json['phone_number'];
+    emailVerifiedAt = json['email_verified_at'];
+    isActive = json['is_active'];
+    createdAt = json['created_at'];
+    updatedAt = json['updated_at'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['department_id'] = departmentId;
+    data['name'] = name;
+    data['email'] = email;
+    data['phone_number'] = phoneNumber;
+    data['email_verified_at'] = emailVerifiedAt;
+    data['is_active'] = isActive;
     data['created_at'] = createdAt;
     data['updated_at'] = updatedAt;
     return data;

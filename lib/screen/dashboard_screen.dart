@@ -8,6 +8,7 @@ import 'package:hsseq/model/user.dart';
 import 'package:hsseq/provider/auth_provider.dart';
 import 'package:hsseq/screen/incident_screen.dart';
 import 'package:hsseq/screen/login_screen.dart';
+import 'package:hsseq/screen/my_incident_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ionicons/ionicons.dart';
@@ -29,6 +30,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       Provider.of<AuthProvider>(context, listen: false).checkUserOffline();
     });
+  }
+
+  bool _checkRoles() {
+    List<Roles> roles = Provider.of<AuthProvider>(context, listen: false).roles;
+    bool isManager = false;
+
+    for (var element in roles) {
+      isManager = (element.name!.toLowerCase().contains("manager") ||
+              element.name!.toLowerCase().contains("admin"))
+          ? true
+          : false;
+    }
+
+    return isManager;
   }
 
   @override
@@ -98,7 +113,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     title: "Incident\nReporting",
                     iconData: Ionicons.alert_outline,
                     function: () {
-                      Navigator.of(context).pushNamed(IncidentScreen.routeName);
+                      _checkRoles()
+                          ? Navigator.of(context)
+                              .pushNamed(IncidentScreen.routeName)
+                          : Navigator.of(context)
+                              .pushNamed(MyIncidentScreen.routeName);
                     }),
                 ContainerScreen(
                     title: "Gate\nPass",

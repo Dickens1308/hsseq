@@ -6,14 +6,13 @@ import 'package:flutter/material.dart';
 import 'package:hsseq/model/incident.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
-import 'package:hsseq/model/user.dart';
-import 'package:hsseq/provider/auth_provider.dart';
 import 'package:hsseq/provider/incident_provider.dart';
 import 'package:hsseq/screen/edit_incident.dart';
 import 'package:hsseq/screen/image_view.dart';
 import 'package:hsseq/screen/update_images.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:intl/intl.dart';
 
 enum IncidentAction { edit, delete, updateImages }
 
@@ -50,18 +49,6 @@ class _ViewIncidentState extends State<ViewIncident> {
     incident = widget.incident;
   }
 
-  bool _checkRoles() {
-    List<Roles> roles = Provider.of<AuthProvider>(context).roles;
-
-    bool isManager = false;
-
-    for (var element in roles) {
-      isManager = element.name!.contains("manager") ? true : false;
-    }
-
-    return isManager;
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -69,13 +56,11 @@ class _ViewIncidentState extends State<ViewIncident> {
       appBar: AppBar(
         title: const Text("Incident Details"),
         actions: [
-          (_checkRoles() && widget.parentPage == "all_incident")
+          widget.parentPage == "all_incident"
               ? popupForAllIncidentWithoutUpdate(context)
-              : (widget.parentPage == "all_incident")
-                  ? Container()
-                  : incident.isViewed.toString() == "0"
-                      ? popupForMyIncident(context)
-                      : popupForMyIncidentWitoutDelete(context)
+              : incident.isViewed.toString() == "0"
+                  ? popupForMyIncident(context)
+                  : popupForMyIncidentWitoutDelete(context)
         ],
       ),
       body: Consumer<IncidentProvider>(builder: (context, notify, child) {
@@ -87,29 +72,56 @@ class _ViewIncidentState extends State<ViewIncident> {
                 scrollDirection: Axis.vertical,
                 child: Padding(
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          detailsColumn(
-                              "Location", incident.location.toString()),
-                          detailsColumn(
-                              "Description", incident.description.toString()),
-                          detailsColumn(
-                              "Risk Level", incident.riskLevel.toString()),
-                          detailsColumn("Action Taken",
-                              incident.immediateActionTaken.toString()),
-                        ],
+                      Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          color: Colors.white,
+                          boxShadow: [
+                            BoxShadow(
+                              spreadRadius: .4,
+                              blurRadius: .4,
+                              offset: const Offset(1, 0),
+                              color: const Color.fromARGB(255, 179, 179, 179)
+                                  .withOpacity(.3),
+                            ),
+                          ],
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              detailsColumn(
+                                  "Location: ", incident.location.toString()),
+                              detailsColumn("Description: ",
+                                  incident.description.toString()),
+                              detailsColumn("Risk Level: ",
+                                  incident.riskLevel.toString()),
+                              detailsColumn("Action Taken: ",
+                                  incident.immediateActionTaken.toString()),
+                              detailsColumn("Reported By: ",
+                                  incident.reporter!.name.toString()),
+                              detailsColumn(
+                                "Reported Date",
+                                DateFormat('MMMM d, yyyy HH:mm').format(
+                                    DateTime.parse(
+                                        incident.createdAt.toString())),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                       incident.images!.isNotEmpty
                           ? Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Padding(
-                                  padding: const EdgeInsets.only(bottom: 8),
+                                  padding:
+                                      const EdgeInsets.only(bottom: 8, top: 8),
                                   child: Text(
                                     "Incident Images",
                                     style: Theme.of(context)
@@ -122,7 +134,30 @@ class _ViewIncidentState extends State<ViewIncident> {
                                         ),
                                   ),
                                 ),
-                                newMethod(),
+                                Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(8),
+                                    color: Colors.white,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        spreadRadius: .4,
+                                        blurRadius: .4,
+                                        offset: const Offset(1, 0),
+                                        color: const Color.fromARGB(
+                                                255, 179, 179, 179)
+                                            .withOpacity(.3),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(
+                                      top: 2,
+                                      left: 8,
+                                      bottom: 6,
+                                    ),
+                                    child: newMethod(),
+                                  ),
+                                ),
                               ],
                             )
                           : Container(),
@@ -366,12 +401,12 @@ class _ViewIncidentState extends State<ViewIncident> {
           Text(
             "$title:",
             textAlign: TextAlign.justify,
-            style: Theme.of(context).textTheme.bodyLarge,
+            style: Theme.of(context).textTheme.bodyText1,
           ),
           Text(
             value,
             textAlign: TextAlign.justify,
-            style: Theme.of(context).textTheme.headline5,
+            style: Theme.of(context).textTheme.headline6,
           ),
         ],
       ),

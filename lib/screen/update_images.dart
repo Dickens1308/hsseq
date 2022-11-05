@@ -123,13 +123,13 @@ class _UpdateImagesState extends State<UpdateImages> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 20),
-                      imageFiles != null
+                      const SizedBox(height: 8),
+                      (imageFiles != null && imageFiles!.isNotEmpty)
                           ? Padding(
                               padding: const EdgeInsets.only(top: 10),
                               child: buildGridView(),
                             )
-                          : const SizedBox(height: 8),
+                          : const SizedBox(height: 20),
                       imageFromServerGrid(incident, notify),
                       const SizedBox(height: 30),
                       SizedBox(
