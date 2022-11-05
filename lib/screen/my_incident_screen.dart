@@ -127,7 +127,7 @@ class IncidentListTile extends StatelessWidget {
       ),
       behavior: HitTestBehavior.opaque,
       child: Padding(
-        padding: const EdgeInsets.only(left: 15, right: 15, top: 15),
+        padding: const EdgeInsets.only(left: 5, right: 5, top: 6),
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8),
@@ -161,9 +161,9 @@ class IncidentListTile extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      DateFormat('MMM d, yyyy').format(
+                      DateFormat('MMM d, yyyy HH:mm').format(
                           DateTime.parse(incident.createdAt.toString())),
-                      style: Theme.of(context).textTheme.bodyText1!.merge(
+                      style: Theme.of(context).textTheme.bodyLarge!.merge(
                             const TextStyle(
                               fontWeight: FontWeight.w600,
                               color: Colors.grey,
@@ -181,7 +181,7 @@ class IncidentListTile extends StatelessWidget {
                     const SizedBox(width: 3),
                     Text(
                       incident.riskLevel.toString(),
-                      style: Theme.of(context).textTheme.bodyText1!.merge(
+                      style: Theme.of(context).textTheme.bodyLarge!.merge(
                             TextStyle(
                               fontWeight: FontWeight.w600,
                               color:

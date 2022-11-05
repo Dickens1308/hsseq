@@ -7,18 +7,37 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hsseq/api/auth_api.dart';
+import 'package:hsseq/db/role_db.dart';
+import 'package:hsseq/db/user_db.dart';
 import 'package:hsseq/model/user.dart';
 import 'package:hsseq/screen/dashboard_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthProvider extends ChangeNotifier {
   final AuthApi api = AuthApi();
+  final _userDb = UserDatabase.instance;
+  final _roleDb = RoleDatabase.instance;
 
   bool _isLoading = false;
   final bool _isLogged = false;
-  late User _user;
+  User _user = User();
+  List<Roles> _roles = [Roles()];
 
   String _errorMessage = "";
+
+  void checkUserOffline() {
+    try {
+      _userDb.fetchTransactions().then((value) => {setUser(value)});
+      _roleDb
+          .fetchTransactions()
+          .then((value) => {setRoles(value)})
+          .catchError((onError) {
+        log(onError.toString());
+      });
+    } catch (e) {
+      log(e.toString());
+    }
+  }
 
   //Function to login user
   Future<void> loginUser(
@@ -38,13 +57,19 @@ class AuthProvider extends ChangeNotifier {
           fontSize: 16.0,
         );
       }
-      log(isConnected.toString());
+
       User? list = isConnected ? await api.loginUser(email, password) : null;
       log(list.toString());
 
       if (list != null) {
         setUser(list);
         setIsLogged(true);
+
+        _userDb.insertData(list);
+
+        for (var role in list.roles!) {
+          _roleDb.insertData(role);
+        }
         // ignore: use_build_context_synchronously
         Navigator.of(context).pushNamedAndRemoveUntil(
             DashboardScreen.routeName, (route) => false);
@@ -79,6 +104,13 @@ class AuthProvider extends ChangeNotifier {
 
   void setUser(User user) {
     _user = user;
+    notifyListeners();
+  }
+
+  List<Roles> get roles => _roles;
+
+  void setRoles(List<Roles> value) {
+    _roles = value;
     notifyListeners();
   }
 

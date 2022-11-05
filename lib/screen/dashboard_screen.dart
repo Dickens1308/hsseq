@@ -1,10 +1,16 @@
 // ignore_for_file: depend_on_referenced_packages
 
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:hsseq/model/user.dart';
+import 'package:hsseq/provider/auth_provider.dart';
 import 'package:hsseq/screen/incident_screen.dart';
 import 'package:hsseq/screen/login_screen.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:ionicons/ionicons.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({Key? key}) : super(key: key);
@@ -17,9 +23,68 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      Provider.of<AuthProvider>(context, listen: false).checkUserOffline();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  Provider.of<AuthProvider>(context).user.name.toString(),
+                  style: Theme.of(context).textTheme.headline6!.merge(
+                        const TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.w300,
+                        ),
+                      ),
+                ),
+                Text(
+                  Provider.of<AuthProvider>(context)
+                      .roles
+                      .first
+                      .name
+                      .toString(),
+                  style: Theme.of(context).textTheme.bodyText1!.merge(
+                        const TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.w300,
+                        ),
+                      ),
+                ),
+              ],
+            ),
+          ),
+          CircleAvatar(
+            radius: 30,
+            backgroundColor: Theme.of(context).primaryColor.withOpacity(.6),
+            child: Text(
+              Provider.of<AuthProvider>(context)
+                  .user
+                  .name
+                  .toString()
+                  .substring(0, 2),
+              style: Theme.of(context).textTheme.headline5!.merge(
+                    const TextStyle(
+                        color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
+            ),
+          ),
+          const SizedBox(width: 15)
+        ],
+      ),
       body: SingleChildScrollView(
         scrollDirection: Axis.vertical,
         child: Column(
@@ -31,7 +96,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               children: [
                 ContainerScreen(
                     title: "Incident\nReport",
-                    iconData: Icons.ac_unit_outlined,
+                    iconData: Ionicons.bar_chart_outline,
                     function: () {
                       Navigator.of(context).pushNamed(IncidentScreen.routeName);
                     }),
@@ -67,11 +132,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
               children: [
                 ContainerScreen(
                     title: "Logout",
-                    iconData: Icons.logout_outlined,
+                    iconData: Ionicons.log_out_outline,
                     function: () async {
-                      SharedPreferences _pref =
+                      SharedPreferences pref =
                           await SharedPreferences.getInstance();
-                      _pref.remove("token").then((value) => {
+                      pref.remove("token").then((value) => {
                             Navigator.pushNamedAndRemoveUntil(context,
                                 LoginScreen.routeName, (route) => false)
                           });

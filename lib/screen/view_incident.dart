@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:hsseq/model/incident.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:hsseq/model/user.dart';
+import 'package:hsseq/provider/auth_provider.dart';
 import 'package:hsseq/provider/incident_provider.dart';
 import 'package:hsseq/screen/edit_incident.dart';
 import 'package:hsseq/screen/image_view.dart';
@@ -48,6 +50,18 @@ class _ViewIncidentState extends State<ViewIncident> {
     incident = widget.incident;
   }
 
+  bool _checkRoles() {
+    List<Roles> roles = Provider.of<AuthProvider>(context).roles;
+
+    bool isManager = false;
+
+    for (var element in roles) {
+      isManager = element.name!.contains("manager") ? true : false;
+    }
+
+    return isManager;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -55,11 +69,13 @@ class _ViewIncidentState extends State<ViewIncident> {
       appBar: AppBar(
         title: const Text("Incident Details"),
         actions: [
-          incident.isViewed.toString() == "0"
-              ? widget.parentPage == "all_incident"
-                  ? popupForAllIncidentWithoutUpdate(context)
-                  : popupForMyIncident(context)
-              : popupForMyIncidentWitoutDelete(context)
+          (_checkRoles() && widget.parentPage == "all_incident")
+              ? popupForAllIncidentWithoutUpdate(context)
+              : (widget.parentPage == "all_incident")
+                  ? Container()
+                  : incident.isViewed.toString() == "0"
+                      ? popupForMyIncident(context)
+                      : popupForMyIncidentWitoutDelete(context)
         ],
       ),
       body: Consumer<IncidentProvider>(builder: (context, notify, child) {

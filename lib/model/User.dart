@@ -12,18 +12,54 @@ class User {
 
   User(
       {this.id,
-        this.departmentId,
-        this.name,
-        this.email,
-        this.phoneNumber,
-        this.emailVerifiedAt,
-        this.isActive,
-        this.createdAt,
-        this.updatedAt,
-        this.roles
-      });
+      this.departmentId,
+      this.name,
+      this.email,
+      this.phoneNumber,
+      this.emailVerifiedAt,
+      this.isActive,
+      this.createdAt,
+      this.updatedAt,
+      this.roles});
 
-   User.fromJson(Map<String, dynamic> json) {
+  static const tableName = "user";
+  static const colId = "id";
+  static const colName = "name";
+  static const colCreate = "created_at";
+  static const colUpdate = "updated_at";
+  static const colPhone = "phone";
+  static const colDepartmentId = "dept_id";
+  static const colEmail = "email";
+
+  Map<String, dynamic> toMap() {
+    var map = <String, dynamic>{
+      colName: name,
+      colCreate: createdAt,
+      colUpdate: updatedAt,
+      colEmail: email,
+      colDepartmentId: departmentId,
+      colPhone: phoneNumber,
+    };
+
+    if (id != null) {
+      map[colId] = id;
+    }
+    return map;
+  }
+
+  factory User.fromMap(Map<String, dynamic> map) {
+    return User(
+      id: map[colId],
+      name: map[colName],
+      createdAt: map[colCreate],
+      updatedAt: map[colUpdate],
+      phoneNumber: map[colPhone],
+      email: map[colEmail],
+      departmentId: map[colDepartmentId],
+    );
+  }
+
+  User.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     departmentId = json['department_id'].toString();
     name = json['name'];
@@ -60,7 +96,7 @@ class User {
 }
 
 class Roles {
-  int? id;
+  String? id;
   String? name;
   String? guardName;
   String? createdAt;
@@ -69,11 +105,42 @@ class Roles {
 
   Roles(
       {this.id,
-        this.name,
-        this.guardName,
-        this.createdAt,
-        this.updatedAt,
-        this.pivot});
+      this.name,
+      this.guardName,
+      this.createdAt,
+      this.updatedAt,
+      this.pivot});
+
+  static const tableName = "role";
+  static const colId = "id";
+  static const colName = "name";
+  static const colCreate = "created_at";
+  static const colUpdate = "updated_at";
+  static const colGuard = "guard_name";
+
+  Map<String, dynamic> toMap() {
+    var map = <String, dynamic>{
+      colName: name,
+      colCreate: createdAt,
+      colUpdate: updatedAt,
+      colGuard: guardName,
+    };
+
+    if (id != null) {
+      map[colId] = id;
+    }
+    return map;
+  }
+
+  factory Roles.fromMap(Map<String, dynamic> map) {
+    return Roles(
+      id: map[colId],
+      name: map[colName],
+      createdAt: map[colCreate],
+      updatedAt: map[colUpdate],
+      guardName: map[colGuard],
+    );
+  }
 
   Roles.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -112,12 +179,10 @@ class Pivot {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data =  <String, dynamic>{};
+    final Map<String, dynamic> data = <String, dynamic>{};
     data['model_id'] = modelId;
     data['role_id'] = roleId;
     data['model_type'] = modelType;
     return data;
   }
 }
-
-

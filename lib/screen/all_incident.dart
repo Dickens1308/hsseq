@@ -5,8 +5,6 @@ import 'package:hsseq/model/incident.dart';
 import 'package:hsseq/provider/incident_provider.dart';
 import 'package:hsseq/screen/login_screen.dart';
 import 'package:hsseq/screen/my_incident_screen.dart';
-import 'package:hsseq/screen/view_incident.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

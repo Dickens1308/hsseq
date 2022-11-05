@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hsseq/screen/all_incident.dart';
 import 'package:hsseq/screen/my_incident_screen.dart';
+import 'package:ionicons/ionicons.dart';
 
 class IncidentScreen extends StatefulWidget {
   const IncidentScreen({Key? key}) : super(key: key);
@@ -24,14 +25,14 @@ class _IncidentScreenState extends State<IncidentScreen> {
         children: [
           ContainerScreen(
             title: "My Incidence",
-            iconData: Icons.ac_unit_outlined,
+            iconData: Ionicons.person_outline,
             function: () {
               Navigator.of(context).pushNamed(MyIncidentScreen.routeName);
             },
           ),
           ContainerScreen(
             title: "All Incidences",
-            iconData: Icons.account_tree_outlined,
+            iconData: Ionicons.people_outline,
             function: () {
               Navigator.of(context).pushNamed(AllIncident.routeName);
             },
