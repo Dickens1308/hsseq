@@ -96,7 +96,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               children: [
                 ContainerScreen(
                     title: "Incident\nReporting",
-                    iconData: Ionicons.bar_chart_outline,
+                    iconData: Ionicons.alert_outline,
                     function: () {
                       Navigator.of(context).pushNamed(IncidentScreen.routeName);
                     }),
