@@ -10,13 +10,13 @@ import 'package:hsseq/api/incident_api.dart';
 import 'package:hsseq/model/incident.dart';
 import 'package:hsseq/provider/auth_provider.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class IncidentProvider extends ChangeNotifier {
   List<Incident> _incidentList = [];
   List<Incident> _myIncidentList = [];
   IncidentApi api = IncidentApi();
   bool _isLoading = false;
+  bool _isDeleteLoading = false;
   final AuthProvider authProvider = AuthProvider();
 
   List<Incident> get incidentList => _incidentList;
@@ -34,9 +34,15 @@ class IncidentProvider extends ChangeNotifier {
   }
 
   bool get isLoading => _isLoading;
+  bool get isDeleteLoading => _isDeleteLoading;
 
   void setIsLoading(bool loading) {
     _isLoading = loading;
+    notifyListeners();
+  }
+
+  void setIsDeleteLoading(bool loading) {
+    _isDeleteLoading = loading;
     notifyListeners();
   }
 
@@ -62,7 +68,7 @@ class IncidentProvider extends ChangeNotifier {
   }
 
   //Fetch My Incident Only
-  void fetchMyIncident(BuildContext context) async {
+  Future<List<Incident>?> fetchMyIncident(BuildContext context) async {
     try {
       setIsLoading(true);
       List<Incident> list = await api.fetchMyIncident();
@@ -71,6 +77,8 @@ class IncidentProvider extends ChangeNotifier {
         setMyIncidentList(list);
         setIsLoading(false);
       }
+
+      return list;
     } catch (e) {
       setIsLoading(false);
       // Fluttertoast.showToast(
@@ -84,6 +92,8 @@ class IncidentProvider extends ChangeNotifier {
       // );
       log(e.toString());
     }
+
+    return null;
   }
 
   //Create Incident
@@ -199,6 +209,102 @@ class IncidentProvider extends ChangeNotifier {
     }
   }
 
+  // Adding Photos to Incidence
+  addMorePhotoToIncident(
+      BuildContext context, String? uuid, List<XFile> photos) async {
+    try {
+      setIsLoading(true);
+      bool isConnected = await _checkConnection();
+
+      String? message =
+          isConnected ? await api.addMorePhotoToIncident(uuid, photos) : null;
+
+      if (message.toString() == "Incident images added") {
+        fetchMyIncident(context).then((value) async {
+          if (value != null) {
+            Incident incident = _myIncidentList[
+                _myIncidentList.indexWhere((e) => e.id == uuid)];
+
+            Fluttertoast.showToast(
+              msg: message.toString(),
+              toastLength: Toast.LENGTH_SHORT,
+              backgroundColor: Colors.blue,
+              textColor: Colors.white,
+            );
+
+            Navigator.of(context).pop(incident);
+          }
+        });
+      }
+    } catch (e) {
+      log(e.toString());
+
+      Fluttertoast.showToast(
+        msg: e.toString(),
+        toastLength: Toast.LENGTH_SHORT,
+        backgroundColor: Colors.blue,
+        textColor: Colors.white,
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  // Delete Incident Photo
+  Future<Incident?> deleteIncedentPhoto(
+      BuildContext context, String? uuid, String? imageId) async {
+    try {
+      setIsDeleteLoading(true);
+      bool isConnected = await _checkConnection();
+
+      String? message =
+          isConnected ? await api.deleteIncedentPhoto(imageId) : null;
+
+      if (message == "Incident image removed") {
+        Incident? incident = _deleteImageData(uuid, imageId);
+
+        Fluttertoast.showToast(
+          msg: "Incident photo was successful deleted!",
+          toastLength: Toast.LENGTH_SHORT,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+        );
+
+        return incident;
+      }
+    } catch (e) {
+      log(e.toString());
+      Fluttertoast.showToast(
+        msg: e.toString(),
+        toastLength: Toast.LENGTH_SHORT,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
+    } finally {
+      setIsDeleteLoading(false);
+    }
+
+    return null;
+  }
+
+  //Delete data in the list  after success delete
+  // Notify Listener for the changes
+  Incident? _deleteImageData(String? uuid, String? imageId) {
+    try {
+      // Searching for model in the list
+      Incident temp =
+          _myIncidentList[_myIncidentList.indexWhere((e) => e.id == uuid)];
+      temp.images!.removeWhere((e) => e.id == imageId);
+
+      notifyListeners();
+
+      return temp;
+    } catch (e) {
+      log(e.toString());
+      return null;
+    }
+  }
+
   //Delete data in the list  after success delete
   // Notify Listener for the changes
   void _deleteData(String? uuid) {
@@ -257,12 +363,5 @@ class IncidentProvider extends ChangeNotifier {
     } else {
       return false;
     }
-  }
-
-  Future<String?> _getUserPref() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    String? guid = preferences.getString("guid");
-
-    return guid;
   }
 }

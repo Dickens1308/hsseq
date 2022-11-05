@@ -54,7 +54,10 @@ class _AllIncidentState extends State<AllIncident> {
                           itemBuilder: (ctx, i) {
                             Incident incident = provider.incidentList[i];
 
-                            return IncidentListTile(incident: incident);
+                            return IncidentListTile(
+                              incident: incident,
+                              parentChild: 'all_incident',
+                            );
                           })
                     ],
                   ),

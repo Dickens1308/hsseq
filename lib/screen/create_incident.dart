@@ -34,19 +34,20 @@ class _CreateIncidentState extends State<CreateIncident> {
 
   //Image Upload Variables & Methods
   final ImagePicker imagePicker = ImagePicker();
-  List<XFile>? imageFiles;
+  List<XFile>? imageFiles = [];
 
   openImageGallery() async {
     try {
       var isPermissionAllowed = await _checkPermission();
-      var pickedFiles =
+      log("Is permission $isPermissionAllowed");
+      List<XFile>? pickedFiles =
           isPermissionAllowed ? await imagePicker.pickMultiImage() : null;
       if (pickedFiles != null) {
         setState(() {
           imageFiles!.addAll(pickedFiles);
         });
       } else {
-        _toasterMessage("No image file selected", Colors.blue);
+        _toasterMessage("No image file selected", Colors.red);
         log("No image is selected.");
       }
     } catch (e) {

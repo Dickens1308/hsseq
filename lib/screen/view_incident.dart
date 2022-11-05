@@ -9,15 +9,19 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:hsseq/provider/incident_provider.dart';
 import 'package:hsseq/screen/edit_incident.dart';
 import 'package:hsseq/screen/image_view.dart';
+import 'package:hsseq/screen/update_images.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 
-enum IncidentAction { edit, delete }
+enum IncidentAction { edit, delete, updateImages }
 
 class ViewIncident extends StatefulWidget {
-  const ViewIncident({Key? key, required this.incident}) : super(key: key);
+  const ViewIncident(
+      {Key? key, required this.incident, required this.parentPage})
+      : super(key: key);
 
   final Incident incident;
+  final String parentPage;
 
   @override
   State<ViewIncident> createState() => _ViewIncidentState();
@@ -51,85 +55,11 @@ class _ViewIncidentState extends State<ViewIncident> {
       appBar: AppBar(
         title: const Text("Incident Details"),
         actions: [
-          PopupMenuButton<IncidentAction>(
-              // add icon, by default "3 dot" icon
-              // icon: Icon(Icons.book)
-              itemBuilder: (context) {
-            return [
-              PopupMenuItem<IncidentAction>(
-                value: IncidentAction.edit,
-                child: Row(
-                  children: const [
-                    Icon(Icons.edit, color: Colors.grey),
-                    Padding(
-                      padding: EdgeInsets.only(left: 5),
-                      child: Text("Update Incident"),
-                    ),
-                  ],
-                ),
-              ),
-              PopupMenuItem<IncidentAction>(
-                value: IncidentAction.delete,
-                child: Row(
-                  children: const [
-                    Icon(Icons.delete_outline, color: Colors.grey),
-                    Padding(
-                      padding: EdgeInsets.only(left: 5),
-                      child: Text("Delete Incident"),
-                    ),
-                  ],
-                ),
-              ),
-            ];
-          }, onSelected: (value) {
-            if (value == IncidentAction.edit) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => EditIncident(incident: incident),
-                ),
-              ).then((value) => {
-                    if (value != null)
-                      {
-                        setState(() {
-                          incident = value;
-                        }),
-                      }
-                  });
-            } else {
-              showDialog(
-                  context: context,
-                  builder: (dialogContext) {
-                    return AlertDialog(
-                      title: const Text("Are you sure want to delete?"),
-                      content: const Text(
-                          "You're trying to deleting incident, please make sure you know what you're trying to do!"),
-                      actions: [
-                        TextButton(
-                          onPressed: () => {
-                            Navigator.of(dialogContext).pop(true),
-                            log("message"),
-                            Provider.of<IncidentProvider>(context,
-                                    listen: false)
-                                .deleteIncident(context, incident.id)
-                          },
-                          child: const Text("Delete anyway!"),
-                        ),
-                        TextButton(
-                          onPressed: () =>
-                              Navigator.of(dialogContext).pop(false),
-                          child: const Text(
-                            "Cancel",
-                            style: TextStyle(
-                              color: Colors.grey,
-                            ),
-                          ),
-                        )
-                      ],
-                    );
-                  });
-            }
-          }),
+          incident.isViewed.toString() == "0"
+              ? widget.parentPage == "all_incident"
+                  ? popupForAllIncidentWithoutUpdate(context)
+                  : popupForMyIncident(context)
+              : popupForMyIncidentWitoutDelete(context)
         ],
       ),
       body: Consumer<IncidentProvider>(builder: (context, notify, child) {
@@ -176,82 +106,7 @@ class _ViewIncidentState extends State<ViewIncident> {
                                         ),
                                   ),
                                 ),
-                                GridView.builder(
-                                  shrinkWrap: true,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  gridDelegate:
-                                      const SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisSpacing: 6,
-                                    mainAxisSpacing: 6,
-                                    crossAxisCount: 1,
-                                  ),
-                                  itemCount: incident.images!.length,
-                                  itemBuilder: (context, index) {
-                                    return GestureDetector(
-                                      onTap: (() => Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (_) =>
-                                                  PhotoFullScreenView(
-                                                      image: incident
-                                                          .images![index].path),
-                                            ),
-                                          )),
-                                      child: Padding(
-                                        padding: const EdgeInsets.only(
-                                            right: 10, top: 10),
-                                        child: ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                          child: CachedNetworkImage(
-                                            cacheManager: customCacheManager,
-                                            key: UniqueKey(),
-                                            imageUrl: incident
-                                                .images![index].path
-                                                .toString(),
-                                            height: MediaQuery.of(context)
-                                                    .size
-                                                    .height *
-                                                .12,
-                                            width: MediaQuery.of(context)
-                                                    .size
-                                                    .width *
-                                                .25,
-                                            fit: BoxFit.cover,
-                                            errorWidget: (context, url, error) {
-                                              return Image.asset(
-                                                  'assets/images/error.jpg');
-                                            },
-                                            placeholder: (context, url) {
-                                              return Shimmer.fromColors(
-                                                baseColor:
-                                                    Colors.grey.withOpacity(.3),
-                                                highlightColor: Colors.white
-                                                    .withOpacity(.2),
-                                                child: Container(
-                                                  height: MediaQuery.of(context)
-                                                          .size
-                                                          .height *
-                                                      .12,
-                                                  width: MediaQuery.of(context)
-                                                          .size
-                                                          .width *
-                                                      .25,
-                                                  decoration: BoxDecoration(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            8),
-                                                    color: Colors.grey,
-                                                  ),
-                                                ),
-                                              );
-                                            },
-                                          ),
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                ),
+                                newMethod(),
                               ],
                             )
                           : Container(),
@@ -260,6 +115,229 @@ class _ViewIncidentState extends State<ViewIncident> {
                 ),
               );
       }),
+    );
+  }
+
+  PopupMenuButton<IncidentAction> popupForMyIncident(BuildContext context) {
+    return PopupMenuButton(
+        position: PopupMenuPosition.under,
+        itemBuilder: (context) {
+          return [
+            PopupMenuItem<IncidentAction>(
+              value: IncidentAction.edit,
+              child: Row(
+                children: const [
+                  Icon(Icons.edit, color: Colors.grey),
+                  Padding(
+                    padding: EdgeInsets.only(left: 5),
+                    child: Text("Update Incident"),
+                  ),
+                ],
+              ),
+            ),
+            PopupMenuItem<IncidentAction>(
+              value: IncidentAction.updateImages,
+              child: Row(
+                children: const [
+                  Icon(Icons.image, color: Colors.grey),
+                  Padding(
+                    padding: EdgeInsets.only(left: 5),
+                    child: Text("Update Images"),
+                  ),
+                ],
+              ),
+            ),
+            PopupMenuItem<IncidentAction>(
+              value: IncidentAction.delete,
+              child: Row(
+                children: const [
+                  Icon(Icons.delete_outline, color: Colors.grey),
+                  Padding(
+                    padding: EdgeInsets.only(left: 5),
+                    child: Text("Delete Incident"),
+                  ),
+                ],
+              ),
+            ),
+          ];
+        },
+        onSelected: (value) {
+          if (value == IncidentAction.edit) {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => EditIncident(incident: incident),
+                )).then((value) => {
+                  if (value != null)
+                    {
+                      setState(() {
+                        incident = value;
+                      }),
+                    }
+                });
+          } else if (value == IncidentAction.updateImages) {
+            Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => UpdateImages(incident: incident)))
+                .then((value) => {
+                      if (value != null)
+                        {
+                          setState(
+                            () {
+                              incident = value;
+                            },
+                          )
+                        }
+                    });
+          } else if (value == IncidentAction.delete) {
+            showDialogBoxWidget(context);
+          }
+        });
+  }
+
+  PopupMenuButton<IncidentAction> popupForAllIncidentWithoutUpdate(
+      BuildContext context) {
+    return PopupMenuButton(
+        position: PopupMenuPosition.under,
+        itemBuilder: (context) {
+          return [
+            PopupMenuItem<IncidentAction>(
+              value: IncidentAction.delete,
+              child: Row(
+                children: const [
+                  Icon(Icons.delete_outline, color: Colors.grey),
+                  Padding(
+                    padding: EdgeInsets.only(left: 5),
+                    child: Text("Delete Incident"),
+                  ),
+                ],
+              ),
+            ),
+          ];
+        },
+        onSelected: (value) {
+          if (value == IncidentAction.delete) {
+            showDialogBoxWidget(context);
+          }
+        });
+  }
+
+  PopupMenuButton<IncidentAction> popupForMyIncidentWitoutDelete(
+      BuildContext context) {
+    return PopupMenuButton(
+        position: PopupMenuPosition.under,
+        itemBuilder: (context) {
+          return [
+            PopupMenuItem<IncidentAction>(
+              value: IncidentAction.edit,
+              child: Row(
+                children: const [
+                  Icon(Icons.edit, color: Colors.grey),
+                  Padding(
+                    padding: EdgeInsets.only(left: 5),
+                    child: Text("Update Incident"),
+                  ),
+                ],
+              ),
+            ),
+            PopupMenuItem<IncidentAction>(
+              value: IncidentAction.updateImages,
+              child: Row(
+                children: const [
+                  Icon(Icons.image, color: Colors.grey),
+                  Padding(
+                    padding: EdgeInsets.only(left: 5),
+                    child: Text("Update Images"),
+                  ),
+                ],
+              ),
+            ),
+          ];
+        },
+        onSelected: (value) {
+          if (value == IncidentAction.edit) {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => EditIncident(incident: incident),
+                )).then((value) => {
+                  if (value != null)
+                    {
+                      setState(() {
+                        incident = value;
+                      }),
+                    }
+                });
+          } else if (value == IncidentAction.updateImages) {
+            Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => UpdateImages(incident: incident)))
+                .then((value) => {
+                      if (value != null)
+                        {
+                          setState(
+                            () {
+                              incident = value;
+                            },
+                          )
+                        }
+                    });
+          }
+        });
+  }
+
+  GridView newMethod() {
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+      ),
+      itemCount: incident.images!.length,
+      itemBuilder: (context, index) {
+        return GestureDetector(
+          onTap: (() => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) =>
+                      PhotoFullScreenView(image: incident.images![index].path),
+                ),
+              )),
+          child: Padding(
+            padding: const EdgeInsets.only(right: 10, top: 10),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: CachedNetworkImage(
+                cacheManager: customCacheManager,
+                key: UniqueKey(),
+                imageUrl: incident.images![index].path.toString(),
+                height: MediaQuery.of(context).size.height * .12,
+                width: MediaQuery.of(context).size.width * .25,
+                fit: BoxFit.cover,
+                errorWidget: (context, url, error) {
+                  return Image.asset('assets/images/error.jpg');
+                },
+                placeholder: (context, url) {
+                  return Shimmer.fromColors(
+                    baseColor: Colors.grey.withOpacity(.3),
+                    highlightColor: Colors.white.withOpacity(.2),
+                    child: Container(
+                      height: MediaQuery.of(context).size.height * .12,
+                      width: MediaQuery.of(context).size.width * .25,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        color: Colors.grey,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -282,6 +360,38 @@ class _ViewIncidentState extends State<ViewIncident> {
         ],
       ),
     );
+  }
+
+  void showDialogBoxWidget(buildContextcontext) {
+    showDialog(
+        context: context,
+        builder: (dialogContext) {
+          return AlertDialog(
+            title: const Text("Are you sure want to delete?"),
+            content: const Text(
+                "You're trying to deleting incident, please make sure you know what you're trying to do!"),
+            actions: [
+              TextButton(
+                onPressed: () => {
+                  Navigator.of(dialogContext).pop(true),
+                  log("message"),
+                  Provider.of<IncidentProvider>(context, listen: false)
+                      .deleteIncident(context, incident.id)
+                },
+                child: const Text("Delete anyway!"),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(false),
+                child: const Text(
+                  "Cancel",
+                  style: TextStyle(
+                    color: Colors.grey,
+                  ),
+                ),
+              )
+            ],
+          );
+        });
   }
 
   // static String displayTimeAgoFromTimestamp(

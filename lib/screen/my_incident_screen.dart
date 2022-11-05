@@ -7,6 +7,7 @@ import 'package:hsseq/screen/create_incident.dart';
 import 'package:hsseq/screen/view_incident.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:ionicons/ionicons.dart';
 
 class MyIncidentScreen extends StatefulWidget {
   const MyIncidentScreen({Key? key}) : super(key: key);
@@ -80,7 +81,10 @@ class _MyIncidentScreenState extends State<MyIncidentScreen> {
                       scrollDirection: Axis.vertical,
                       itemBuilder: (context, index) {
                         Incident incident = notify.myIncidentList[index];
-                        return IncidentListTile(incident: incident);
+                        return IncidentListTile(
+                          incident: incident,
+                          parentChild: 'my_incident',
+                        );
                       });
         },
       ),
@@ -103,9 +107,11 @@ class _MyIncidentScreenState extends State<MyIncidentScreen> {
 }
 
 class IncidentListTile extends StatelessWidget {
-  const IncidentListTile({super.key, required this.incident});
+  const IncidentListTile(
+      {super.key, required this.incident, required this.parentChild});
 
   final Incident incident;
+  final String parentChild;
 
   @override
   Widget build(BuildContext context) {
@@ -113,7 +119,10 @@ class IncidentListTile extends StatelessWidget {
       onTap: () => Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (builder) => ViewIncident(incident: incident),
+          builder: (builder) => ViewIncident(
+            incident: incident,
+            parentPage: parentChild,
+          ),
         ),
       ),
       behavior: HitTestBehavior.opaque,
@@ -137,7 +146,7 @@ class IncidentListTile extends StatelessWidget {
                 backgroundColor: Colors.blue.withOpacity(.1),
                 radius: 20,
                 child: const Icon(
-                  Icons.alarm_outlined,
+                  Ionicons.compass_outline,
                   color: Colors.blue,
                 ),
               ),
@@ -193,13 +202,13 @@ class IncidentListTile extends StatelessWidget {
                 ),
               ),
               trailing: Icon(
-                incident.isViewed.toString() != "0"
-                    ? Icons.check_rounded
-                    : Icons.close,
-                size: 24,
+                incident.isViewed.toString() == "0"
+                    ? Ionicons.checkmark_outline
+                    : Ionicons.checkmark_done_outline,
+                size: 20,
                 color: incident.isViewed.toString() != "0"
                     ? Colors.blue
-                    : Colors.red,
+                    : Colors.grey,
               )),
         ),
       ),

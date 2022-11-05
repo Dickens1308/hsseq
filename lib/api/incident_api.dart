@@ -58,6 +58,50 @@ class IncidentApi {
     }
   }
 
+  // Creating
+  // Adding Photos to Incidence
+  Future<String>? addMorePhotoToIncident(
+      String? uuid, List<XFile> images) async {
+    Uri url = Uri.parse("https://pft.springtech.co.tz/api/v1/incidents/images");
+    http.StreamedResponse result;
+    // String? msg;
+
+    try {
+      String? token = await getTokenPref();
+
+      http.MultipartRequest request = http.MultipartRequest('POST', url);
+      request.headers['Authorization'] = "Bearer $token";
+      request.headers['accept'] = "application/json";
+
+      request.fields['incident_id'] = uuid!;
+
+      List<http.MultipartFile> list = <http.MultipartFile>[];
+
+      for (int i = 0; i < images.length; i++) {
+        list.add(
+          http.MultipartFile(
+            "photos[]",
+            File(images[i].path).readAsBytes().asStream(),
+            File(images[i].path).lengthSync(),
+            filename: basename(images[i].path.split("/").last),
+          ),
+        );
+      }
+
+      request.files.addAll(list);
+      result = await request.send();
+
+      if (result.statusCode == 200) {
+        return "Incident images added";
+      } else {
+        throw Exception("Failed to add incident images!");
+      }
+    } on SocketException catch (e) {
+      log(e.toString());
+      return e.toString();
+    }
+  }
+
   //Fetch My Incident
   Future<List<Incident>> fetchMyIncident() async {
     var url = Uri.parse("https://pft.springtech.co.tz/api/v1/incidents/staff");
@@ -124,7 +168,7 @@ class IncidentApi {
     return list;
   }
 
-//Staff Incident
+  //Staff Incident
   //Edit Incident
   Future<Incident?> updateIncident(String? uuid, String? risk, String? location,
       String? desc, String? action) async {
@@ -194,6 +238,37 @@ class IncidentApi {
         throw Exception(msg);
       }
     } catch (e) {
+      return e.toString();
+    }
+  }
+
+  // Delete Incident Photo
+  Future<String?> deleteIncedentPhoto(String? imageId) async {
+    http.Response result;
+
+    var url = Uri.parse(
+        "https://pft.springtech.co.tz/api/v1/incidents/images/delete");
+
+    try {
+      String? token = await getTokenPref();
+
+      result = await http.post(
+        url,
+        headers: {
+          "accept": "application/json",
+          "Authorization": "Bearer $token"
+        },
+        body: {"id": imageId},
+      );
+
+      if (result.statusCode == 200) {
+        return jsonDecode(result.body)["message"];
+      } else {
+        var msg = jsonDecode(result.body)["data"];
+        throw Exception(msg);
+      }
+    } catch (e) {
+      log(e.toString());
       return e.toString();
     }
   }
