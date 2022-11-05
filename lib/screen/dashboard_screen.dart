@@ -36,53 +36,53 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        actions: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  Provider.of<AuthProvider>(context).user.name.toString(),
-                  style: Theme.of(context).textTheme.headline6!.merge(
-                        const TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.w300,
-                        ),
-                      ),
-                ),
-                // Text(
-                //   Provider.of<AuthProvider>(context)
-                //       .roles
-                //       .first
-                //       .name
-                //       .toString(),
-                //   style: Theme.of(context).textTheme.bodyText1!.merge(
-                //         const TextStyle(
-                //           color: Colors.black,
-                //           fontWeight: FontWeight.w300,
-                //         ),
-                //       ),
-                // ),
-              ],
-            ),
-          ),
-          CircleAvatar(
-            radius: 30,
-            backgroundColor: Theme.of(context).primaryColor.withOpacity(.6),
-            child: Text(
-              Provider.of<AuthProvider>(context)
-                  .user
-                  .name
-                  .toString()
-                  .substring(0, 2),
-              style: Theme.of(context).textTheme.headline5!.merge(
-                    const TextStyle(
-                        color: Colors.white, fontWeight: FontWeight.bold),
-                  ),
-            ),
-          ),
-          const SizedBox(width: 15)
+        actions: const [
+          // Padding(
+          //   padding: const EdgeInsets.all(8.0),
+          //   child: Column(
+          //     crossAxisAlignment: CrossAxisAlignment.end,
+          //     children: [
+          //       Text(
+          //         Provider.of<AuthProvider>(context).user.name.toString(),
+          //         style: Theme.of(context).textTheme.headline6!.merge(
+          //               const TextStyle(
+          //                 color: Colors.black,
+          //                 fontWeight: FontWeight.w300,
+          //               ),
+          //             ),
+          //       ),
+          //       // Text(
+          //       //   Provider.of<AuthProvider>(context)
+          //       .roles
+          //       //       .first
+          //       //       .name
+          //       //       .toString(),
+          //       //   style: Theme.of(context).textTheme.bodyText1!.merge(
+          //       //         const TextStyle(
+          //       //           color: Colors.black,
+          //       //           fontWeight: FontWeight.w300,
+          //       //         ),
+          //       //       ),
+          //       // ),
+          //     ],
+          //   ),
+          // ),
+          // CircleAvatar(
+          //   radius: 30,
+          //   backgroundColor: Theme.of(context).primaryColor.withOpacity(.6),
+          //   child: Text(
+          //     Provider.of<AuthProvider>(context)
+          //         .user
+          //         .name
+          //         .toString()
+          //         .substring(0, 2),
+          //     style: Theme.of(context).textTheme.headline5!.merge(
+          //           const TextStyle(
+          //               color: Colors.white, fontWeight: FontWeight.bold),
+          //         ),
+          //   ),
+          // ),
+          // const SizedBox(width: 15)
         ],
       ),
       body: SingleChildScrollView(
@@ -95,7 +95,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 ContainerScreen(
-                    title: "Incident\nReport",
+                    title: "Incident\nReporting",
                     iconData: Ionicons.bar_chart_outline,
                     function: () {
                       Navigator.of(context).pushNamed(IncidentScreen.routeName);
