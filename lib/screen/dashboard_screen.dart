@@ -51,19 +51,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         ),
                       ),
                 ),
-                Text(
-                  Provider.of<AuthProvider>(context)
-                      .roles
-                      .first
-                      .name
-                      .toString(),
-                  style: Theme.of(context).textTheme.bodyText1!.merge(
-                        const TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.w300,
-                        ),
-                      ),
-                ),
+                // Text(
+                //   Provider.of<AuthProvider>(context)
+                //       .roles
+                //       .first
+                //       .name
+                //       .toString(),
+                //   style: Theme.of(context).textTheme.bodyText1!.merge(
+                //         const TextStyle(
+                //           color: Colors.black,
+                //           fontWeight: FontWeight.w300,
+                //         ),
+                //       ),
+                // ),
               ],
             ),
           ),
