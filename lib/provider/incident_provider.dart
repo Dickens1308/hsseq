@@ -98,7 +98,7 @@ class IncidentProvider extends ChangeNotifier {
   }
 
   // Pagination and Road More Fuction
-  int _page = 1;
+  int _page = 2;
   bool _loadMore = false;
   int get page => _page;
   bool get loadMore => _loadMore;
@@ -142,7 +142,7 @@ class IncidentProvider extends ChangeNotifier {
   }
 
   // Pagination and Road More Fuction
-  int _allPage = 1;
+  int _allPage = 2;
   bool _loadAllMore = false;
   int get allPage => _allPage;
   bool get loadMoreAll => _loadAllMore;
