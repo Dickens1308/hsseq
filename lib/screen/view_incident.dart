@@ -77,6 +77,7 @@ class _ViewIncidentState extends State<ViewIncident> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
+                        width: double.infinity,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(8),
                           color: Colors.white,
@@ -135,6 +136,7 @@ class _ViewIncidentState extends State<ViewIncident> {
                                   ),
                                 ),
                                 Container(
+                                  width: double.infinity,
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(8),
                                     color: Colors.white,
