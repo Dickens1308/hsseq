@@ -123,8 +123,8 @@ class _ViewIncidentState extends State<ViewIncident> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Padding(
-                                  padding:
-                                      const EdgeInsets.only(bottom: 8, top: 8),
+                                  padding: const EdgeInsets.only(
+                                      bottom: 8, top: 8, left: 10),
                                   child: Text(
                                     "Incident Images",
                                     style: Theme.of(context)
