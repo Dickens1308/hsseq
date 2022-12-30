@@ -70,21 +70,21 @@ class IncidentListTile extends StatelessWidget {
                             ),
                           ),
                     ),
-                    Container(
-                      margin:
-                          const EdgeInsets.only(bottom: 2, left: 15, right: 15),
-                      height: 10,
-                      width: 1,
-                      color: Colors.grey,
-                    ),
-                    SizedBox(
-                      width: 100,
-                      child: Text(
-                        incident.accidentCategory.toString(),
-                        overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                    ),
+                    // Container(
+                    //   margin:
+                    //       const EdgeInsets.only(bottom: 2, left: 15, right: 15),
+                    //   height: 10,
+                    //   width: 1,
+                    //   color: Colors.grey,
+                    // ),
+                    // SizedBox(
+                    //   width: 100,
+                    //   child: Text(
+                    //     incident.accidentCategory.toString(),
+                    //     overflow: TextOverflow.ellipsis,
+                    //     style: Theme.of(context).textTheme.bodySmall,
+                    //   ),
+                    // ),
                   ],
                 ),
               ),

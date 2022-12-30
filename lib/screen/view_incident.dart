@@ -403,7 +403,7 @@ class _ViewIncidentState extends State<ViewIncident> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "$title:",
+            title,
             textAlign: TextAlign.justify,
             style: Theme.of(context).textTheme.bodyText1!.merge(
                   const TextStyle(color: Colors.grey),
