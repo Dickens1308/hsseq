@@ -84,8 +84,7 @@ class AuthProvider extends ChangeNotifier {
       Fluttertoast.showToast(
         msg: errorMessage,
         toastLength: Toast.LENGTH_LONG,
-        gravity: ToastGravity.CENTER,
-        timeInSecForIosWeb: 1,
+        gravity: ToastGravity.BOTTOM,
         backgroundColor: Colors.red,
         textColor: Colors.white,
         fontSize: 16.0,

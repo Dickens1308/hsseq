@@ -1,14 +1,13 @@
-// ignore_for_file: depend_on_referenced_packages
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:hsseq/model/incident.dart';
-import 'package:hsseq/provider/incident_provider.dart';
-import 'package:hsseq/screen/login_screen.dart';
-import 'package:hsseq/screen/my_incident_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../model/incident.dart';
+import '../provider/incident_provider.dart';
+import '../widgets/incident_tile.dart';
+import 'login_screen.dart';
 
 class AllIncident extends StatefulWidget {
   const AllIncident({Key? key}) : super(key: key);
@@ -80,32 +79,35 @@ class _AllIncidentState extends State<AllIncident> {
                       controller: controller,
                       physics: const BouncingScrollPhysics(),
                       scrollDirection: Axis.vertical,
-                      child: Column(
-                        children: [
-                          ListView.builder(
-                            physics: const NeverScrollableScrollPhysics(),
-                            shrinkWrap: true,
-                            scrollDirection: Axis.vertical,
-                            itemCount: provider.incidentList.length,
-                            itemBuilder: (ctx, i) {
-                              Incident incident = provider.incidentList[i];
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 10, right: 10),
+                        child: Column(
+                          children: [
+                            ListView.builder(
+                              physics: const NeverScrollableScrollPhysics(),
+                              shrinkWrap: true,
+                              scrollDirection: Axis.vertical,
+                              itemCount: provider.incidentList.length,
+                              itemBuilder: (ctx, i) {
+                                Incident incident = provider.incidentList[i];
 
-                              return IncidentListTile(
-                                incident: incident,
-                                parentChild: 'all_incident',
-                              );
-                            },
-                          ),
-                          provider.loadMoreAll
-                              ? const Padding(
-                                  padding: EdgeInsets.only(top: 20),
-                                  child: CupertinoActivityIndicator(
-                                    animating: true,
-                                    radius: 12,
-                                  ),
-                                )
-                              : const SizedBox(),
-                        ],
+                                return IncidentListTile(
+                                  incident: incident,
+                                  parentChild: 'all_incident',
+                                );
+                              },
+                            ),
+                            provider.loadMoreAll
+                                ? const Padding(
+                                    padding: EdgeInsets.only(top: 20),
+                                    child: CupertinoActivityIndicator(
+                                      animating: true,
+                                      radius: 12,
+                                    ),
+                                  )
+                                : const SizedBox(),
+                          ],
+                        ),
                       ),
                     ),
                   ),

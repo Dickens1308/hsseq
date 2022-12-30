@@ -2,17 +2,17 @@
 
 import 'dart:developer';
 
-import 'package:flutter/material.dart';
-import 'package:hsseq/model/incident.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:hsseq/model/incident.dart';
 import 'package:hsseq/provider/incident_provider.dart';
 import 'package:hsseq/screen/edit_incident.dart';
 import 'package:hsseq/screen/image_view.dart';
 import 'package:hsseq/screen/update_images.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:intl/intl.dart';
 
 enum IncidentAction { edit, delete, updateImages }
 
@@ -100,8 +100,10 @@ class _ViewIncidentState extends State<ViewIncident> {
                                   "Location: ", incident.location.toString()),
                               detailsColumn("Description: ",
                                   incident.description.toString()),
-                              detailsColumn("Risk Level: ",
-                                  incident.riskLevel.toString()),
+                              detailsColumn("Accident category: ",
+                                  incident.accidentCategory.toString()),
+                              detailsColumn(
+                                  "Threat: ", incident.threat.toString()),
                               detailsColumn("Action Taken: ",
                                   incident.immediateActionTaken.toString()),
                               detailsColumn("Reported By: ",
@@ -403,12 +405,14 @@ class _ViewIncidentState extends State<ViewIncident> {
           Text(
             "$title:",
             textAlign: TextAlign.justify,
-            style: Theme.of(context).textTheme.bodyText1,
+            style: Theme.of(context).textTheme.bodyText1!.merge(
+                  const TextStyle(color: Colors.grey),
+                ),
           ),
           Text(
             value,
             textAlign: TextAlign.justify,
-            style: Theme.of(context).textTheme.headline6,
+            style: Theme.of(context).textTheme.bodyLarge,
           ),
         ],
       ),
@@ -446,41 +450,4 @@ class _ViewIncidentState extends State<ViewIncident> {
           );
         });
   }
-
-  // static String displayTimeAgoFromTimestamp(
-  //     String dateString, bool numericDates) {
-  //   DateTime date = DateTime.parse(dateString);
-  //   final date2 = DateTime.now();
-  //   final difference = date2.difference(date);
-
-  //   if ((difference.inDays / 365).floor() >= 2) {
-  //     return '${(difference.inDays / 365).floor()} years ago';
-  //   } else if ((difference.inDays / 365).floor() >= 1) {
-  //     return (numericDates) ? '1 year ago' : 'Last year';
-  //   } else if ((difference.inDays / 30).floor() >= 2) {
-  //     return '${(difference.inDays / 365).floor()} months ago';
-  //   } else if ((difference.inDays / 30).floor() >= 1) {
-  //     return (numericDates) ? '1 month ago' : 'Last month';
-  //   } else if ((difference.inDays / 7).floor() >= 2) {
-  //     return '${(difference.inDays / 7).floor()} weeks ago';
-  //   } else if ((difference.inDays / 7).floor() >= 1) {
-  //     return (numericDates) ? '1 week ago' : 'Last week';
-  //   } else if (difference.inDays >= 2) {
-  //     return '${difference.inDays} days ago';
-  //   } else if (difference.inDays >= 1) {
-  //     return (numericDates) ? '1 day ago' : 'Yesterday';
-  //   } else if (difference.inHours >= 2) {
-  //     return '${difference.inHours} hours ago';
-  //   } else if (difference.inHours >= 1) {
-  //     return (numericDates) ? '1 hour ago' : 'An hour ago';
-  //   } else if (difference.inMinutes >= 2) {
-  //     return '${difference.inMinutes} minutes ago';
-  //   } else if (difference.inMinutes >= 1) {
-  //     return (numericDates) ? '1 minute ago' : 'A minute ago';
-  //   } else if (difference.inSeconds >= 3) {
-  //     return '${difference.inSeconds} seconds ago';
-  //   } else {
-  //     return 'Just now';
-  //   }
-  // }
 }

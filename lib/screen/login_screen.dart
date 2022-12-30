@@ -5,6 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:hsseq/provider/auth_provider.dart';
 import 'package:provider/provider.dart';
 
+import '../widgets/email_field_widget.dart';
+import '../widgets/password_field_form.dart';
+
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
   static const routeName = '/login';
@@ -18,7 +21,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
 
   GlobalKey<FormState> globalKey = GlobalKey<FormState>();
-  bool _viewPassword = true;
+  bool viewPassword = true;
 
   @override
   Widget build(BuildContext context) {
@@ -67,9 +70,8 @@ class _LoginScreenState extends State<LoginScreen> {
                             child: Text(
                               'Sign in to Continue',
                               style:
-                                  Theme.of(context).textTheme.headline6!.merge(
+                                  Theme.of(context).textTheme.headline5!.merge(
                                         const TextStyle(
-                                          fontSize: 18,
                                           color: Colors.grey,
                                         ),
                                       ),
@@ -80,13 +82,21 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(
-                          vertical: 10, horizontal: 10),
+                          vertical: 10, horizontal: 20),
                       child: Form(
                         key: globalKey,
                         child: Column(
                           children: [
-                            _email(context),
-                            _password(context),
+                            EmailFieldForm(controller: _emailController),
+                            PasswordFieldForm(
+                              controller: _passwordController,
+                              viewPassword: viewPassword,
+                              function: () {
+                                setState(() {
+                                  viewPassword = !viewPassword;
+                                });
+                              },
+                            ),
                           ],
                         ),
                       ),
@@ -99,126 +109,32 @@ class _LoginScreenState extends State<LoginScreen> {
     });
   }
 
-  Widget _password(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 30),
-      child: TextFormField(
-        keyboardType: TextInputType.visiblePassword,
-        obscureText: _viewPassword,
-        controller: _passwordController,
-        autovalidateMode: AutovalidateMode.onUserInteraction,
-        validator: (input) => input!.length < 4
-            ? "Password length should have more than 4 characters"
-            : null,
-        decoration: InputDecoration(
-          hintText: "Enter your password",
-          labelText: "Password",
-          labelStyle: const TextStyle(
-            fontSize: 24,
-          ),
-          prefixIcon: const Icon(
-            Icons.lock,
-          ),
-          suffixIcon: IconButton(
-            onPressed: () {
-              setState(() {
-                _viewPassword = !_viewPassword;
-              });
-            },
-            icon: Icon(
-              _viewPassword ? Icons.visibility_off : Icons.visibility,
-              color: Colors.grey,
-            ),
-          ),
-          floatingLabelBehavior: FloatingLabelBehavior.always,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(20),
-            borderSide: const BorderSide(),
-            gapPadding: 10,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _email(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 8),
-      child: TextFormField(
-        autovalidateMode: AutovalidateMode.onUserInteraction,
-        keyboardType: TextInputType.emailAddress,
-        controller: _emailController,
-        validator: (input) =>
-            input!.isValidEmail() ? null : "check your email if is correct",
-        decoration: InputDecoration(
-          hintText: "Enter your email address",
-          labelText: "Email",
-          labelStyle: const TextStyle(
-            fontSize: 24,
-          ),
-          prefixIcon: const Icon(
-            Icons.mail,
-          ),
-          floatingLabelBehavior: FloatingLabelBehavior.always,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(20),
-            borderSide: const BorderSide(),
-            gapPadding: 10,
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _buttonField(notifier) {
     return Padding(
       padding: const EdgeInsets.only(left: 20, top: 30, right: 20, bottom: 20),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(8),
-        onTap: () async {
-          if (globalKey.currentState!.validate()) {
-            globalKey.currentState!.save();
+      child: SizedBox(
+        width: double.infinity,
+        height: 55,
+        child: ElevatedButton(
+          onPressed: () {
+            if (globalKey.currentState!.validate()) {
+              globalKey.currentState!.save();
 
-            notifier.loginUser(
-              _emailController.text,
-              _passwordController.text,
-              context,
-            );
-          }
-        },
-        child: AnimatedContainer(
-            curve: Curves.easeInOutCubic,
-            padding: const EdgeInsets.fromLTRB(40, 10, 40, 10),
-            decoration: BoxDecoration(
-              color: Colors.blue[500],
-              borderRadius: BorderRadius.circular(8),
-            ),
-            duration: const Duration(milliseconds: 400),
-            child: SizedBox(
-              width: MediaQuery.of(context).size.width,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "Login",
-                    style: Theme.of(context)
-                        .textTheme
-                        .headline5!
-                        .merge(const TextStyle(color: Colors.white)),
-                  ),
-                ],
-              ),
-            )),
+              notifier.loginUser(
+                _emailController.text,
+                _passwordController.text,
+                context,
+              );
+            }
+          },
+          child: Text(
+            'Sign in',
+            style: Theme.of(context).textTheme.headline5!.merge(
+                  const TextStyle(color: Colors.white),
+                ),
+          ),
+        ),
       ),
     );
-  }
-}
-
-extension EmailValidator on String {
-  bool isValidEmail() {
-    return RegExp(
-            r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$')
-        .hasMatch(this);
   }
 }

@@ -1,17 +1,15 @@
-// ignore_for_file: depend_on_referenced_packages
-
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:hsseq/model/user.dart';
-import 'package:hsseq/provider/auth_provider.dart';
-import 'package:hsseq/screen/incident_screen.dart';
-import 'package:hsseq/screen/login_screen.dart';
-import 'package:hsseq/screen/my_incident_screen.dart';
+import 'package:ionicons/ionicons.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:ionicons/ionicons.dart';
+
+import '../model/user.dart';
+import '../provider/auth_provider.dart';
+import '../widgets/dashboard_tile.dart';
+import 'all_incident.dart';
+import 'login_screen.dart';
+import 'my_incident_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({Key? key}) : super(key: key);
@@ -51,175 +49,129 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        actions: const [
-          // Padding(
-          //   padding: const EdgeInsets.all(8.0),
-          //   child: Column(
-          //     crossAxisAlignment: CrossAxisAlignment.end,
-          //     children: [
-          //       Text(
-          //         Provider.of<AuthProvider>(context).user.name.toString(),
-          //         style: Theme.of(context).textTheme.headline6!.merge(
-          //               const TextStyle(
-          //                 color: Colors.black,
-          //                 fontWeight: FontWeight.w300,
-          //               ),
-          //             ),
-          //       ),
-          //       // Text(
-          //       //   Provider.of<AuthProvider>(context)
-          //       .roles
-          //       //       .first
-          //       //       .name
-          //       //       .toString(),
-          //       //   style: Theme.of(context).textTheme.bodyText1!.merge(
-          //       //         const TextStyle(
-          //       //           color: Colors.black,
-          //       //           fontWeight: FontWeight.w300,
-          //       //         ),
-          //       //       ),
-          //       // ),
-          //     ],
-          //   ),
-          // ),
-          // CircleAvatar(
-          //   radius: 30,
-          //   backgroundColor: Theme.of(context).primaryColor.withOpacity(.6),
-          //   child: Text(
-          //     Provider.of<AuthProvider>(context)
-          //         .user
-          //         .name
-          //         .toString()
-          //         .substring(0, 2),
-          //     style: Theme.of(context).textTheme.headline5!.merge(
-          //           const TextStyle(
-          //               color: Colors.white, fontWeight: FontWeight.bold),
-          //         ),
-          //   ),
-          // ),
-          // const SizedBox(width: 15)
-        ],
       ),
       body: SingleChildScrollView(
         scrollDirection: Axis.vertical,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 60),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                ContainerScreen(
-                    title: "Incident\nReporting",
-                    iconData: Ionicons.warning_outline,
-                    function: () {
-                      _checkRoles()
-                          ? Navigator.of(context)
-                              .pushNamed(IncidentScreen.routeName)
-                          : Navigator.of(context)
-                              .pushNamed(MyIncidentScreen.routeName);
-                    }),
-                ContainerScreen(
-                    title: "Gate\nPass",
-                    iconData: Icons.home,
-                    function: () {
-                      Fluttertoast.showToast(msg: "Gate Pass");
-                    }),
-              ],
-            ),
-            const SizedBox(height: 40),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                ContainerScreen(
-                    title: "JPM",
-                    iconData: Icons.home,
-                    function: () {
-                      Fluttertoast.showToast(msg: "JPM");
-                    }),
-                ContainerScreen(
+        child: Padding(
+          padding: const EdgeInsets.only(left: 10, right: 10),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 60),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  DashboardTile(
+                      title: "Incident\nReporting",
+                      iconData: Ionicons.warning_outline,
+                      function: () {
+                        _checkRoles()
+                            ? showPopUpMenu()
+                            : Navigator.of(context)
+                                .pushNamed(MyIncidentScreen.routeName);
+                      }),
+                  DashboardTile(
+                      title: "Gate\nPass",
+                      iconData: Icons.garage_outlined,
+                      function: () {
+                        Fluttertoast.showToast(msg: "Gate Pass");
+                      }),
+                ],
+              ),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  DashboardTile(
+                      title: "JPM",
+                      iconData: Icons.account_balance_sharp,
+                      function: () {
+                        Fluttertoast.showToast(msg: "JPM");
+                      }),
+                  DashboardTile(
                     title: "Work\nPermit",
-                    iconData: Icons.home,
-                    function: () {
-                      Fluttertoast.showToast(msg: "Work Permit");
-                    }),
-              ],
-            ),
-            const SizedBox(height: 40),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                ContainerScreen(
-                    title: "Logout",
-                    iconData: Ionicons.log_out_outline,
-                    function: () async {
-                      SharedPreferences pref =
-                          await SharedPreferences.getInstance();
-                      pref.remove("token").then((value) => {
-                            Navigator.pushNamedAndRemoveUntil(context,
-                                LoginScreen.routeName, (route) => false)
-                          });
-                    }),
-                SizedBox(
-                  width: MediaQuery.of(context).size.width * .4,
-                ),
-              ],
-            )
-          ],
+                    iconData: Icons.work,
+                    function: () => Fluttertoast.showToast(msg: "Work Permit"),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  DashboardTile(
+                      title: "Logout",
+                      iconData: Ionicons.log_out_outline,
+                      function: () async {
+                        SharedPreferences pref =
+                            await SharedPreferences.getInstance();
+                        pref.remove("token").then((value) => {
+                              Navigator.pushNamedAndRemoveUntil(context,
+                                  LoginScreen.routeName, (route) => false)
+                            });
+                      }),
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width * .4,
+                  ),
+                ],
+              )
+            ],
+          ),
         ),
       ),
     );
   }
-}
 
-class ContainerScreen extends StatelessWidget {
-  const ContainerScreen(
-      {Key? key,
-      required this.title,
-      required this.iconData,
-      required this.function})
-      : super(key: key);
-  final String title;
-  final IconData iconData;
-  final Function function;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => function(),
-      behavior: HitTestBehavior.opaque,
-      child: Container(
-        height: MediaQuery.of(context).size.height * .22,
-        width: MediaQuery.of(context).size.width * .4,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8),
+  showPopUpMenu() {
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          height: 200,
           color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              spreadRadius: .4,
-              blurRadius: .4,
-              offset: const Offset(1, 0),
-              color: const Color.fromARGB(255, 179, 179, 179).withOpacity(.3),
+          child: Padding(
+            padding: const EdgeInsets.only(left: 20, right: 20),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                SizedBox(
+                  height: 50,
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    child: Text(
+                      'My incident',
+                      style: Theme.of(context).textTheme.headline6!.merge(
+                            const TextStyle(color: Colors.white),
+                          ),
+                    ),
+                    onPressed: () {
+                      Navigator.pop(context);
+                      Navigator.of(context)
+                          .pushNamed(MyIncidentScreen.routeName);
+                    },
+                  ),
+                ),
+                const SizedBox(height: 20),
+                SizedBox(
+                  height: 50,
+                  width: double.infinity,
+                  child: OutlinedButton(
+                    child: Text(
+                      'All incident',
+                      style: Theme.of(context).textTheme.headline6,
+                    ),
+                    onPressed: () {
+                      Navigator.pop(context);
+                      Navigator.of(context).pushNamed(AllIncident.routeName);
+                    },
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CircleAvatar(
-              radius: 30,
-              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-              child: Icon(iconData, color: Colors.blue, size: 35),
-            ),
-            const SizedBox(height: 14),
-            Text(
-              title,
-              style: Theme.of(context).textTheme.headline6,
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }

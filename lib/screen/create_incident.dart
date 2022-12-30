@@ -11,6 +11,11 @@ import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
+import '../widgets/action_form_field.dart';
+import '../widgets/desc_form_field.dart';
+import '../widgets/location_widget.dart';
+import '../widgets/threat_form_widget.dart';
+
 class CreateIncident extends StatefulWidget {
   const CreateIncident({Key? key}) : super(key: key);
 
@@ -24,10 +29,20 @@ class _CreateIncidentState extends State<CreateIncident> {
   final _actionController = TextEditingController();
   final _locationController = TextEditingController();
   final _descController = TextEditingController();
+  final _threatController = TextEditingController();
 
   //Risk Level Alerts
-  String? _risk;
-  final _riskArray = ['High', 'Medium', 'Low'];
+  String? _accidentCategory;
+  final _accidentCategoryList = [
+    "PI/Hazard/Hatari",
+    "Property Damage/Uharibifu wa mali/gari",
+    "Near Miss/Kosa kosa/Almanusura",
+    "Environmental Incident/Uharibifu wa mazingira",
+    "Medical Treatment Injury/Ajari ya Kimatibabu",
+    "Minor Injury (First Aid Injury)/Ajari ya huduma ya kwanza",
+    "Lost Time Injury/Ajari ya kukosa kazini",
+    "Fatality/Kifo",
+  ];
 
   //Form State
   final GlobalKey<FormState> _globalKey = GlobalKey<FormState>();
@@ -100,13 +115,17 @@ class _CreateIncidentState extends State<CreateIncident> {
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               const SizedBox(height: 10),
-                              _riskLevelDropDown(context),
+                              _accidentCategoryWidget(context),
                               const SizedBox(height: 10),
-                              _locationField(context),
+                              LocationFormWidget(
+                                  controller: _locationController),
                               const SizedBox(height: 10),
-                              _descriptionField(context),
+                              ThreatFormWidget(controller: _threatController),
                               const SizedBox(height: 10),
-                              _actionTakenField(context),
+                              DescriptionFormWidget(
+                                  controller: _descController),
+                              const SizedBox(height: 10),
+                              ActionFormField(controller: _actionController),
                               const SizedBox(height: 10),
                               SizedBox(
                                 width: double.infinity,
@@ -144,44 +163,7 @@ class _CreateIncidentState extends State<CreateIncident> {
                                 width: double.infinity,
                                 height: 50,
                                 child: ElevatedButton(
-                                  onPressed: () async {
-                                    //Validate DropDown
-                                    if (imageFiles == null &&
-                                        !_riskArray.contains(_risk)) {
-                                      _toasterMessage(
-                                          "Risk level & Images fields are required",
-                                          Colors.red);
-                                    } else if (imageFiles != null &&
-                                        !_riskArray.contains(_risk)) {
-                                      _toasterMessage(
-                                          "Risk level field is required",
-                                          Colors.red);
-                                    } else if (imageFiles != null &&
-                                        !_riskArray.contains(_risk)) {
-                                      _toasterMessage(
-                                          "Please Image is required",
-                                          Colors.red);
-                                    }
-
-                                    //Check Fields State and Send Post Request
-                                    if (_globalKey.currentState!.validate()) {
-                                      _globalKey.currentState!.save();
-
-                                      bool isCompleted =
-                                          await notify.createIncident(
-                                              context,
-                                              imageFiles!,
-                                              _risk,
-                                              _locationController.text,
-                                              _descController.text,
-                                              _actionController.text);
-
-                                      if (isCompleted) {
-                                        // ignore: use_build_context_synchronously
-                                        Navigator.of(context).pop(true);
-                                      }
-                                    }
-                                  },
+                                  onPressed: () async => onSubmitForm(notify),
                                   child: const Padding(
                                     padding:
                                         EdgeInsets.only(top: 10, bottom: 10),
@@ -199,6 +181,41 @@ class _CreateIncidentState extends State<CreateIncident> {
         },
       ),
     );
+  }
+
+  void onSubmitForm(IncidentProvider notify) async {
+    //Validate DropDown
+    if (imageFiles == null &&
+        !_accidentCategoryList.contains(_accidentCategory)) {
+      _toasterMessage(
+          "Accident category & Images fields are required", Colors.red);
+    } else if (imageFiles != null &&
+        !_accidentCategoryList.contains(_accidentCategory)) {
+      _toasterMessage("Accident category is required", Colors.red);
+    } else if (imageFiles!.isEmpty &&
+        !_accidentCategoryList.contains(_accidentCategory)) {
+      _toasterMessage("Please provide image(s) for the incident", Colors.red);
+    } else {
+      //Check Fields State and Send Post Request
+      if (_globalKey.currentState!.validate()) {
+        _globalKey.currentState!.save();
+
+        bool isCompleted = await notify.createIncident(
+          context,
+          imageFiles!,
+          _locationController.text,
+          _descController.text,
+          _actionController.text,
+          _threatController.text,
+          _accidentCategory,
+        );
+
+        if (isCompleted) {
+          // ignore: use_build_context_synchronously
+          Navigator.of(context).pop(true);
+        }
+      }
+    }
   }
 
   Widget buildGridView() {
@@ -257,12 +274,12 @@ class _CreateIncidentState extends State<CreateIncident> {
     );
   }
 
-  Widget _riskLevelDropDown(BuildContext context) {
+  Widget _accidentCategoryWidget(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Risk Level',
+          'Accident Category',
           style: Theme.of(context).textTheme.headline6!.merge(
                 const TextStyle(
                   fontSize: 16,
@@ -286,28 +303,25 @@ class _CreateIncidentState extends State<CreateIncident> {
               underline: const SizedBox(),
               elevation: 0,
               hint: const Text(
-                'Select Risk Level',
+                'Select accident category',
                 style: TextStyle(
                   fontSize: 18,
                   color: Colors.grey,
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              value: _risk,
+              value: _accidentCategory,
               onChanged: (value) {
                 setState(() {
-                  _risk = value;
+                  _accidentCategory = value;
                 });
               },
-              items: _riskArray.map((list) {
+              items: _accidentCategoryList.map((list) {
                 return DropdownMenuItem(
                   value: list,
                   child: Text(
                     list,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: Theme.of(context).textTheme.bodyMedium,
                   ),
                 );
               }).toList(),
@@ -315,85 +329,6 @@ class _CreateIncidentState extends State<CreateIncident> {
           ),
         ),
       ],
-    );
-  }
-
-//  Location
-  Widget _locationField(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 30),
-      child: TextFormField(
-        keyboardType: TextInputType.text,
-        controller: _locationController,
-        validator: (input) => input!.length < 2 ? "invalid location" : null,
-        decoration: InputDecoration(
-          hintText: "Enter your location",
-          labelText: "Location",
-          labelStyle: const TextStyle(
-            fontSize: 24,
-          ),
-          floatingLabelBehavior: FloatingLabelBehavior.always,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: const BorderSide(),
-            gapPadding: 10,
-          ),
-        ),
-      ),
-    );
-  }
-
-//  Description
-  Widget _descriptionField(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 30),
-      child: TextFormField(
-        keyboardType: TextInputType.multiline,
-        minLines: 5,
-        maxLines: 40,
-        controller: _descController,
-        validator: (input) => input!.length < 2 ? "invalid description" : null,
-        decoration: InputDecoration(
-          hintText: "Enter description",
-          labelText: "Description",
-          labelStyle: const TextStyle(
-            fontSize: 24,
-          ),
-          floatingLabelBehavior: FloatingLabelBehavior.always,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: const BorderSide(),
-            gapPadding: 10,
-          ),
-        ),
-      ),
-    );
-  }
-
-//  Description
-  Widget _actionTakenField(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 30),
-      child: TextFormField(
-        keyboardType: TextInputType.multiline,
-        minLines: 3,
-        maxLines: 40,
-        controller: _actionController,
-        validator: (input) => input!.length < 2 ? "invalid action taken" : null,
-        decoration: InputDecoration(
-          hintText: "Enter immediate action taken",
-          labelText: "Immediate Action Taken",
-          labelStyle: const TextStyle(
-            fontSize: 24,
-          ),
-          floatingLabelBehavior: FloatingLabelBehavior.always,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: const BorderSide(),
-            gapPadding: 10,
-          ),
-        ),
-      ),
     );
   }
 

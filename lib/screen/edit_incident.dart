@@ -2,10 +2,15 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:hsseq/model/incident.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:hsseq/model/incident.dart';
 import 'package:hsseq/provider/incident_provider.dart';
 import 'package:provider/provider.dart';
+
+import '../widgets/action_form_field.dart';
+import '../widgets/desc_form_field.dart';
+import '../widgets/location_widget.dart';
+import '../widgets/threat_form_widget.dart';
 
 class EditIncident extends StatefulWidget {
   const EditIncident({Key? key, required this.incident}) : super(key: key);
@@ -20,10 +25,20 @@ class _EditIncidentState extends State<EditIncident> {
   late TextEditingController _actionController;
   late TextEditingController _locationController;
   late TextEditingController _descController;
+  late TextEditingController _threatController;
 
   //Risk Level Alerts
-  String? _risk;
-  final _riskArray = ['High', 'Medium', 'Low'];
+  String? _accidentCategory = 'PI/Hazard/Hatari';
+  final _accidentCategoryList = [
+    "PI/Hazard/Hatari",
+    "Property Damage/Uharibifu wa mali/gari",
+    "Near Miss/Kosa kosa/Almanusura",
+    "Environmental Incident/Uharibifu wa mazingira",
+    "Medical Treatment Injury/Ajari ya Kimatibabu",
+    "Minor Injury (First Aid Injury)/Ajari ya huduma ya kwanza",
+    "Lost Time Injury/Ajari ya kukosa kazini",
+    "Fatality/Kifo",
+  ];
 
   //Form State
   final GlobalKey<FormState> _globalKey = GlobalKey<FormState>();
@@ -32,17 +47,18 @@ class _EditIncidentState extends State<EditIncident> {
   void initState() {
     super.initState();
 
-    _risk = widget.incident.riskLevel;
+    _accidentCategory = widget.incident.accidentCategory;
     _actionController =
         TextEditingController(text: widget.incident.immediateActionTaken);
     _locationController = TextEditingController(text: widget.incident.location);
     _descController = TextEditingController(text: widget.incident.description);
+    _threatController = TextEditingController(text: widget.incident.threat);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Create Incident")),
+      appBar: AppBar(title: const Text("Edit Incident")),
       body: Consumer<IncidentProvider>(
         builder: (context, notify, child) {
           return notify.isLoading
@@ -55,6 +71,8 @@ class _EditIncidentState extends State<EditIncident> {
                     onTap: () => FocusScope.of(context).unfocus(),
                     child: SingleChildScrollView(
                       scrollDirection: Axis.vertical,
+                      keyboardDismissBehavior:
+                          ScrollViewKeyboardDismissBehavior.onDrag,
                       child: Form(
                         key: _globalKey,
                         child: Padding(
@@ -63,27 +81,18 @@ class _EditIncidentState extends State<EditIncident> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Text(
-                                'Fill in the form below to create incidence',
-                                textAlign: TextAlign.center,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .headline6!
-                                    .merge(
-                                      const TextStyle(
-                                        fontSize: 16,
-                                        color: Colors.grey,
-                                      ),
-                                    ),
-                              ),
                               const SizedBox(height: 30),
-                              _riskLevelDropDown(context),
+                              _accidentCategoryWidget(context),
                               const SizedBox(height: 10),
-                              _locationField(context),
+                              LocationFormWidget(
+                                  controller: _locationController),
                               const SizedBox(height: 10),
-                              _descriptionField(context),
+                              ThreatFormWidget(controller: _threatController),
                               const SizedBox(height: 10),
-                              _actionTakenField(context),
+                              DescriptionFormWidget(
+                                  controller: _actionController),
+                              const SizedBox(height: 10),
+                              ActionFormField(controller: _actionController),
                               const SizedBox(height: 30),
                               SizedBox(
                                 width: double.infinity,
@@ -91,9 +100,10 @@ class _EditIncidentState extends State<EditIncident> {
                                 child: ElevatedButton(
                                   onPressed: () async {
                                     //Validate DropDown
-                                    if (!_riskArray.contains(_risk)) {
+                                    if (!_accidentCategoryList
+                                        .contains(_accidentCategory)) {
                                       _toasterMessage(
-                                          "Risk level field is required",
+                                          "Accident category field is required",
                                           Colors.red);
                                     }
 
@@ -103,13 +113,13 @@ class _EditIncidentState extends State<EditIncident> {
 
                                       Incident? incident1 =
                                           await notify.updateIncident(
-                                        context,
-                                        widget.incident.id,
-                                        _risk,
-                                        _locationController.text,
-                                        _descController.text,
-                                        _actionController.text,
-                                      );
+                                              context,
+                                              widget.incident.id,
+                                              _accidentCategory,
+                                              _locationController.text,
+                                              _descController.text,
+                                              _actionController.text,
+                                              _threatController.text);
 
                                       if (incident1 != null) {
                                         Navigator.of(context).pop(incident1);
@@ -135,13 +145,18 @@ class _EditIncidentState extends State<EditIncident> {
     );
   }
 
-  Widget _riskLevelDropDown(BuildContext context) {
+  Widget _accidentCategoryWidget(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Risk Level',
-          style: Theme.of(context).textTheme.headline6,
+          'Accident Category',
+          style: Theme.of(context).textTheme.headline6!.merge(
+                const TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey,
+                ),
+              ),
         ),
         const SizedBox(height: 8),
         Container(
@@ -159,27 +174,25 @@ class _EditIncidentState extends State<EditIncident> {
               underline: const SizedBox(),
               elevation: 0,
               hint: const Text(
-                'Select Risk Level',
+                'Select accident category',
                 style: TextStyle(
                   fontSize: 18,
+                  color: Colors.grey,
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              value: _risk,
+              value: _accidentCategory,
               onChanged: (value) {
                 setState(() {
-                  _risk = value;
+                  _accidentCategory = value;
                 });
               },
-              items: _riskArray.map((list) {
+              items: _accidentCategoryList.map((list) {
                 return DropdownMenuItem(
                   value: list,
                   child: Text(
                     list,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: Theme.of(context).textTheme.bodyMedium,
                   ),
                 );
               }).toList(),
@@ -242,7 +255,7 @@ class _EditIncidentState extends State<EditIncident> {
     );
   }
 
-//  Description
+//  Action Taken
   Widget _actionTakenField(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(top: 30),
@@ -255,6 +268,32 @@ class _EditIncidentState extends State<EditIncident> {
         decoration: InputDecoration(
           hintText: "Enter immediate action taken",
           labelText: "Immediate Action Taken",
+          labelStyle: const TextStyle(
+            fontSize: 24,
+          ),
+          floatingLabelBehavior: FloatingLabelBehavior.always,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: const BorderSide(),
+            gapPadding: 10,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _threatTextAreaField(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 30),
+      child: TextFormField(
+        keyboardType: TextInputType.multiline,
+        minLines: 5,
+        maxLines: 40,
+        controller: _threatController,
+        validator: (input) => input!.length < 2 ? "invalid threat" : null,
+        decoration: InputDecoration(
+          hintText: "Enter threat",
+          labelText: "Threat",
           labelStyle: const TextStyle(
             fontSize: 24,
           ),

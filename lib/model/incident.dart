@@ -1,9 +1,10 @@
 class Incident {
   String? id;
   String? reportedBy;
-  String? riskLevel;
   String? location;
   String? description;
+  String? threat;
+  String? accidentCategory;
   String? immediateActionTaken;
   String? isViewed;
   String? happenedAt;
@@ -12,25 +13,28 @@ class Incident {
   List<Images>? images;
   Reporter? reporter;
 
-  Incident(
-      {this.id,
-      this.reportedBy,
-      this.riskLevel,
-      this.location,
-      this.description,
-      this.immediateActionTaken,
-      this.isViewed,
-      this.happenedAt,
-      this.createdAt,
-      this.updatedAt,
-      this.images,
-      this.reporter});
+  Incident({
+    this.id,
+    this.reportedBy,
+    this.location,
+    this.description,
+    this.immediateActionTaken,
+    this.isViewed,
+    this.happenedAt,
+    this.createdAt,
+    this.updatedAt,
+    this.images,
+    this.reporter,
+    this.threat,
+    this.accidentCategory,
+  });
 
   Incident.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     reportedBy = json['reported_by'];
-    riskLevel = json['risk_level'];
     location = json['location'];
+    threat = json['threat'];
+    accidentCategory = json['accident_category'];
     description = json['description'];
     immediateActionTaken = json['immediate_action_taken'];
     isViewed = json['is_viewed'];
@@ -43,20 +47,20 @@ class Incident {
         images!.add(Images.fromJson(v));
       });
     }
-    reporter = json['reporter'] != null
-        ? new Reporter.fromJson(json['reporter'])
-        : null;
+    reporter =
+        json['reporter'] != null ? Reporter.fromJson(json['reporter']) : null;
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['id'] = id;
     data['reported_by'] = reportedBy;
-    data['risk_level'] = riskLevel;
     data['location'] = location;
     data['description'] = description;
     data['immediate_action_taken'] = immediateActionTaken;
     data['is_viewed'] = isViewed;
+    data['threat'] = threat;
+    data['accident_category'] = accidentCategory;
     data['happened_at'] = happenedAt;
     data['created_at'] = createdAt;
     data['updated_at'] = updatedAt;

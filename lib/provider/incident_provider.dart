@@ -34,6 +34,7 @@ class IncidentProvider extends ChangeNotifier {
   }
 
   bool get isLoading => _isLoading;
+
   bool get isDeleteLoading => _isDeleteLoading;
 
   void setIsLoading(bool loading) {
@@ -100,7 +101,9 @@ class IncidentProvider extends ChangeNotifier {
   // Pagination and Road More Fuction
   int _page = 2;
   bool _loadMore = false;
+
   int get page => _page;
+
   bool get loadMore => _loadMore;
 
   void setPageNo(int num) {
@@ -144,7 +147,9 @@ class IncidentProvider extends ChangeNotifier {
   // Pagination and Road More Fuction
   int _allPage = 2;
   bool _loadAllMore = false;
+
   int get allPage => _allPage;
+
   bool get loadMoreAll => _loadAllMore;
 
   void setPageNoAll(int num) {
@@ -186,13 +191,20 @@ class IncidentProvider extends ChangeNotifier {
   }
 
   //Create Incident
-  Future<bool> createIncident(BuildContext context, List<XFile> images,
-      String? risk, String? location, String desc, String? action) async {
+  Future<bool> createIncident(
+      BuildContext context,
+      List<XFile> images,
+      String? location,
+      String desc,
+      String? action,
+      String? threat,
+      String? accidentCategory) async {
     try {
       setIsLoading(true);
       bool isConnected = await _checkConnection();
       String? message = isConnected
-          ? await api.createIncident(images, risk, location, desc, action)
+          ? await api.createIncident(
+              images, location, desc, action, threat, accidentCategory)
           : null;
 
       Fluttertoast.showToast(
@@ -226,14 +238,22 @@ class IncidentProvider extends ChangeNotifier {
   }
 
   //Update Incident
-  Future<Incident?> updateIncident(BuildContext context, String? uuid,
-      String? risk, String? location, String desc, String? action) async {
+  Future<Incident?> updateIncident(
+    BuildContext context,
+    String? uuid,
+    String? accidentCategory,
+    String? location,
+    String desc,
+    String? action,
+    String? threat,
+  ) async {
     try {
       setIsLoading(true);
       bool isConnected = await _checkConnection();
 
       Incident? incident = isConnected
-          ? await api.updateIncident(uuid, risk, location, desc, action)
+          ? await api.updateIncident(
+              uuid, accidentCategory, location, desc, action, threat)
           : null;
 
       if (incident != null) {
@@ -417,7 +437,8 @@ class IncidentProvider extends ChangeNotifier {
       tempIncident.location = incident.location;
       tempIncident.description = incident.description;
       tempIncident.immediateActionTaken = incident.immediateActionTaken;
-      tempIncident.riskLevel = incident.riskLevel;
+      tempIncident.accidentCategory = incident.accidentCategory;
+      tempIncident.threat = incident.threat;
       tempIncident.updatedAt = incident.updatedAt;
 
       notifyListeners();

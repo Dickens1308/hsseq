@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:hsseq/screen/incident_screen.dart';
-import 'package:hsseq/screen/all_incident.dart';
-import 'package:hsseq/screen/create_incident.dart';
-import 'package:hsseq/screen/dashboard_screen.dart';
-import 'package:hsseq/screen/login_screen.dart';
-import 'package:hsseq/screen/my_incident_screen.dart';
-import 'package:hsseq/screen/splash_screen.dart';
+
+import 'screen/all_incident.dart';
+import 'screen/create_incident.dart';
+import 'screen/dashboard_screen.dart';
+import 'screen/login_screen.dart';
+import 'screen/my_incident_screen.dart';
+import 'screen/splash_screen.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -37,9 +37,6 @@ class MyApp extends StatelessWidget {
 
               case DashboardScreen.routeName:
                 return const DashboardScreen();
-
-              case IncidentScreen.routeName:
-                return const IncidentScreen();
 
               case AllIncident.routeName:
                 return const AllIncident();

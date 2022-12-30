@@ -13,8 +13,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class IncidentApi {
   //Create
-  Future<String?> createIncident(List<XFile> images, String? risk,
-      String? location, String desc, String? action) async {
+  Future<String?> createIncident(
+      List<XFile> images,
+      String? location,
+      String desc,
+      String? action,
+      String? threat,
+      String? accidentCategory) async {
     Uri url = Uri.parse("https://pft.springtech.co.tz/api/v1/incidents/create");
     http.StreamedResponse result;
     // String? msg;
@@ -26,10 +31,11 @@ class IncidentApi {
       request.headers['Authorization'] = "Bearer $token";
       request.headers['accept'] = "application/json";
 
-      request.fields['risk_level'] = risk!;
       request.fields['location'] = location!;
       request.fields['description'] = desc;
       request.fields['immediate_action_taken'] = action!;
+      request.fields['threat'] = threat!;
+      request.fields['accident_category'] = accidentCategory!;
 
       List<http.MultipartFile> list = <http.MultipartFile>[];
 
@@ -242,8 +248,8 @@ class IncidentApi {
 
   //Staff Incident
   //Edit Incident
-  Future<Incident?> updateIncident(String? uuid, String? risk, String? location,
-      String? desc, String? action) async {
+  Future<Incident?> updateIncident(String? uuid, String? accidentCategory,
+      String? location, String? desc, String? action, String? threat) async {
     http.Response result;
 
     var url = Uri.parse("https://pft.springtech.co.tz/api/v1/incidents/edit");
@@ -251,20 +257,17 @@ class IncidentApi {
     try {
       String? token = await getTokenPref();
 
-      result = await http.post(
-        url,
-        headers: {
-          "accept": "application/json",
-          "Authorization": "Bearer $token"
-        },
-        body: {
-          "id": uuid,
-          "risk_level": risk,
-          "location": location,
-          "description": desc,
-          "immediate_action_taken": action
-        },
-      );
+      result = await http.post(url, headers: {
+        "accept": "application/json",
+        "Authorization": "Bearer $token"
+      }, body: {
+        "id": uuid,
+        "accident_category": accidentCategory,
+        "location": location,
+        "immediate_action_taken": action,
+        "description": desc,
+        "threat": threat
+      });
 
       if (result.statusCode == 200) {
         Map<String, dynamic> json =
@@ -279,7 +282,7 @@ class IncidentApi {
         throw Exception(msg);
       }
     } catch (e) {
-      throw Exception(e.toString());
+      throw Exception("This is where error is $e");
     }
   }
 
