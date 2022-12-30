@@ -16,9 +16,9 @@ class ActionFormField extends StatelessWidget {
         validator: (input) => input!.length < 2 ? "invalid action taken" : null,
         decoration: InputDecoration(
           hintText: "Enter immediate action taken",
-          labelText: "Immediate Action Taken",
+          labelText: "Immediate Action Taken/Hatua za haraka zilizochukuliwa",
           labelStyle: const TextStyle(
-            fontSize: 24,
+            fontSize: 14,
           ),
           floatingLabelBehavior: FloatingLabelBehavior.always,
           border: OutlineInputBorder(

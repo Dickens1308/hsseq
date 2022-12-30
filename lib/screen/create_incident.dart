@@ -278,14 +278,12 @@ class _CreateIncidentState extends State<CreateIncident> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Accident Category',
-          style: Theme.of(context).textTheme.headline6!.merge(
-                const TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey,
-                ),
-              ),
+        const Text(
+          'Accident Category/Aina ya Ajari',
+          style: TextStyle(
+            fontSize: 14,
+            color: Colors.grey,
+          ),
         ),
         const SizedBox(height: 8),
         Container(

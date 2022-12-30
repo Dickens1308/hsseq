@@ -17,7 +17,7 @@ class DashboardTile extends StatelessWidget {
       onTap: () => function(),
       behavior: HitTestBehavior.opaque,
       child: Container(
-        height: MediaQuery.of(context).size.height * .16,
+        height: MediaQuery.of(context).size.height * .18,
         width: MediaQuery.of(context).size.width * .43,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),

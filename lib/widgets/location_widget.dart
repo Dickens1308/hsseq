@@ -15,9 +15,9 @@ class LocationFormWidget extends StatelessWidget {
         validator: (input) => input!.length < 2 ? "invalid location" : null,
         decoration: InputDecoration(
           hintText: "Enter your location",
-          labelText: "Location",
+          labelText: "Location/Mahali",
           labelStyle: const TextStyle(
-            fontSize: 24,
+            fontSize: 14,
           ),
           floatingLabelBehavior: FloatingLabelBehavior.always,
           border: OutlineInputBorder(

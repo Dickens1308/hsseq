@@ -17,9 +17,9 @@ class ThreatFormWidget extends StatelessWidget {
         validator: (input) => input!.length < 2 ? "invalid threat" : null,
         decoration: InputDecoration(
           hintText: "Enter threat",
-          labelText: "Threat",
+          labelText: "Threat/Tishio",
           labelStyle: const TextStyle(
-            fontSize: 24,
+            fontSize: 14,
           ),
           floatingLabelBehavior: FloatingLabelBehavior.always,
           border: OutlineInputBorder(

@@ -17,9 +17,9 @@ class DescriptionFormWidget extends StatelessWidget {
         validator: (input) => input!.length < 2 ? "invalid description" : null,
         decoration: InputDecoration(
           hintText: "Enter description",
-          labelText: "Description",
+          labelText: "Description/Maelezo",
           labelStyle: const TextStyle(
-            fontSize: 24,
+            fontSize: 14,
           ),
           floatingLabelBehavior: FloatingLabelBehavior.always,
           border: OutlineInputBorder(
